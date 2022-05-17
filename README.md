@@ -25,7 +25,7 @@ Project:
 ## L2blockchains / zkRollups
 
 [PolygonZero](https://polygon.technology/solutions/polygon-zero/) and [codeBase](https://github.com/mir-protocol/plonky2)
-[Fontom](https://www.fantom.foundation/lachesis-consensus-algorithm/) and [codeBase](https://github.com/Fantom-foundation/go-opera)
+[Fantom](https://www.fantom.foundation/lachesis-consensus-algorithm/) and [codeBase](https://github.com/Fantom-foundation/go-opera)
 [zkSync](https://v2-docs.zksync.io/dev/)
 
 ## Tools
