@@ -150,11 +150,19 @@
     "i18n:extract": "lingui extract --locale en-US",
     "i18n:compile": "yarn i18n:extract && lingui compile",
     "i18n:pseudo": "lingui extract --locale pseudo && lingui compile",
+    "postinstall": "yarn lint && yarn contracts:compile",
     "prepare": "yarn contracts:compile && yarn graphql:generate && yarn i18n:compile",
-    "start": "react-scripts start",
+    "start": "yarn contracts:compile && react-scripts start",
     "build": "react-scripts build",
+    "lint": "eslint . --cache --fix --ext .ts,.tsx",
     "test": "react-scripts test --env=./custom-test-env.cjs",
     "test:e2e": "start-server-and-test 'serve build -l 3000' http://localhost:3000 'cypress run --record'"
+  },
+  "eslintConfig": {
+    "extends": "react-app",
+    "ignorePatterns": [
+      "node_modules"
+    ]
   },
   "browserslist": {
     "production": [
