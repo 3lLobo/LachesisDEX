@@ -2,6 +2,7 @@ import ethereumLogoUrl from 'assets/images/ethereum-logo.png'
 import arbitrumLogoUrl from 'assets/svg/arbitrum_logo.svg'
 import optimismLogoUrl from 'assets/svg/optimistic_ethereum.svg'
 import polygonMaticLogo from 'assets/svg/polygon-matic-logo.svg'
+import fantomLogo from 'assets/svg/fantom-ftm-logo.svg'
 import ms from 'ms.macro'
 
 import { SupportedChainId, SupportedL1ChainId, SupportedL2ChainId } from './chains'
@@ -166,5 +167,23 @@ export const CHAIN_INFO: ChainInfoMap = {
     label: 'Polygon Mumbai',
     logoUrl: polygonMaticLogo,
     nativeCurrency: { name: 'Polygon Mumbai Matic', symbol: 'mMATIC', decimals: 18 },
+  },
+  [SupportedChainId.FANTOM]: {
+    networkType: NetworkType.L1,
+    docs: 'https://docs.fantom.foundation/',
+    explorer: 'https://ftmscan.com/',
+    infoLink: 'https://info.uniswap.org/#/polygon/',
+    label: 'Fantom Opera',
+    logoUrl: fantomLogo,
+    nativeCurrency: { name: 'Fantom', symbol: 'FTM', decimals: 18 },
+  },
+  [SupportedChainId.FANTOM_TESTNET]: {
+    networkType: NetworkType.L1,
+    docs: 'https://docs.fantom.foundation/',
+    explorer: 'https://testnet.ftmscan.com/',
+    infoLink: 'https://info.uniswap.org/#/polygon/',
+    label: 'Fantom Testnet',
+    logoUrl: fantomLogo,
+    nativeCurrency: { name: 'Fantom', symbol: 'FTM', decimals: 18 },
   },
 }
