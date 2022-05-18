@@ -26,6 +26,28 @@ Project:
 
 Deploying Uniswap contracts to Fantom testnet.
 
+UniswapV3Factory deployed to: `0x341EC1a1fc2480F400cf33fDc2aC5C95Bdaa3f37`
+
+
+### Constructor Addresses
+
+Fantom mainnet:
+ - Weth: 0x74b23882a30290451A17c44f4F05243b6b58C76d
+
+
+Fantom testnet:
+ - 
+
+
+### Fantom links
+
+
+[Wallet](https://pwawallet.fantom.network/#/account/0x3ECC53F7Ba45508483379bd76989A3003E6cbf09/)
+
+[Scan](https://ftmscan.com/address/0x660655EB385467fd95E19aE97a05188d9553B3Ea)
+
+[Docs](https://docs.fantom.foundation/api/public-api-endpoints#mainnet)
+
 [Faucets](https://faucet.fantom.network/)
 
 ## L2blockchains / zkRollups
