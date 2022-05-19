@@ -1,7 +1,8 @@
 # Crypto
 .env
-
-
+build/
+d3test/
+yarn.lock
 
 # Logs
 # logs

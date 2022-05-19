@@ -36,7 +36,7 @@ Fantom mainnet:
 
 
 Fantom testnet:
- - 
+ - 0xFa743d3ea980eC8697d516097d77f91Fa5561Ebe !!This one is not verified!!
 
 
 ### Fantom links
@@ -49,6 +49,15 @@ Fantom testnet:
 [Docs](https://docs.fantom.foundation/api/public-api-endpoints#mainnet)
 
 [Faucets](https://faucet.fantom.network/)
+
+
+
+## TheGraph
+
+We use the UniswapV3 subgraph to fetch data.
+Endpoint: https://gateway.thegraph.com/api/[api-key]/subgraphs/id/EN9rjKtzNitTEb5hgt8bmiyzzhwBpJrJaRihkg8Me8Rr
+
+Get the API key [here](https://thegraph.com/studio/apikeys/) with 1k free queries.
 
 ## L2blockchains / zkRollups
 
