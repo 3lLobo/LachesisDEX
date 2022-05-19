@@ -332,6 +332,21 @@ export const WRAPPED_NATIVE_CURRENCY: { [chainId: number]: Token | undefined } =
     'WMATIC',
     'Wrapped MATIC'
   ),
+  [SupportedChainId.FANTOM]: new Token(
+    SupportedChainId.FANTOM,
+    '0x21be370D5312f44cB42ce377BC9b8a0cEF1A4C83',
+    18,
+    'WFTM',
+    'Wrapped FTM'
+  ),
+  // TODO: Took the first address from here https://testnet.ftmscan.com searching for wftm
+  [SupportedChainId.FANTOM_TESTNET]: new Token(
+    SupportedChainId.FANTOM_TESTNET,
+    '0xFa743d3ea980eC8697d516097d77f91Fa5561Ebe',
+    18,
+    'WFTM',
+    'Wrapped FTM'
+  ),
 }
 
 function isMatic(chainId: number): chainId is SupportedChainId.POLYGON | SupportedChainId.POLYGON_MUMBAI {
