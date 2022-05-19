@@ -57,10 +57,29 @@ import { maxAmountSpend } from '../../utils/maxAmountSpend'
 import { warningSeverity } from '../../utils/prices'
 import { supportedChainId } from '../../utils/supportedChainId'
 import AppBody from '../AppBody'
+import ReceiverNetworkSelector from './ReceiverNetworkSelector'
 
 const AlertWrapper = styled.div`
   max-width: 460px;
   width: 100%;
+`
+
+const NetworkElement = styled.div`
+  display: flex;
+  align-items: center;
+
+  &:not(:first-child) {
+    margin-left: 0.5em;
+  }
+
+  /* addresses safari's lack of support for "gap" */
+  & > *:not(:first-child) {
+    margin-left: 8px;
+  }
+
+  ${({ theme }) => theme.mediaWidth.upToMedium`
+    align-items: center;
+  `};
 `
 
 export default function Swap({ history }: RouteComponentProps) {
@@ -441,6 +460,9 @@ export default function Swap({ history }: RouteComponentProps) {
                   color={currencies[Field.INPUT] && currencies[Field.OUTPUT] ? theme.text1 : theme.text3}
                 />
               </ArrowWrapper>
+              <NetworkElement>
+                <ReceiverNetworkSelector />
+              </NetworkElement>
               <CurrencyInputPanel
                 value={formattedAmounts[Field.OUTPUT]}
                 onUserInput={handleTypeOutput}
