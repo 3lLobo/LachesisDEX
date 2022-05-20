@@ -7,6 +7,7 @@ Submission project for HackTheMoney | ETHGlobal 2022
 
 ## Pretty Badges
 
+[![Netlify Status](https://api.netlify.com/api/v1/badges/3e96c724-ddcd-4422-9728-3875f9f1fb81/deploy-status)](https://app.netlify.com/sites/lachesiswap/deploys)
 
 ## Roadmap
 
