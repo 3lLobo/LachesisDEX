@@ -35,8 +35,7 @@ class D3Class {
     this.props.onDatapointClick(e, d)
   }
 
-  chart = (svg, width, height, inputdata, onDatapointClick, fontColor) => {
-    console.log('🚀 ~ file: d3class.js ~ line 35 ~ D3Class ~ fontColor', fontColor)
+  chart = (svg, width, height, data, onDatapointClick, fontColor) => {
     const rename = (name) => name.substring(name.indexOf('.') + 1, name.lastIndexOf('.'))
 
     const innerRadius = Math.min(width, height) * 0.5 - 90
@@ -47,23 +46,25 @@ class D3Class {
       .radius(innerRadius - 1)
       .padAngle(1 / innerRadius)
 
-    const data = Array.from(
-      d3
-        .rollup(
-          inputdata.flatMap(({ name: source, imports }) => imports.map((target) => [rename(source), rename(target)])),
-          ({ 0: [source, target], length: value }) => ({ source, target, value }),
-          (link) => link.join()
-        )
-        .values()
-    )
+    // const data = Array.from(
+    //   d3
+    //     .rollup(
+    //       inputdata.flatMap(({ name: source, imports }) => imports.map((target) => [rename(source), rename(target)])),
+    //       // inputdata,
+    //       ({ 0: [source, target], length: value }) => ({ source, target, value }),
+    //       (link) => link.join()
+    //     )
+    //     .values()
+    // )    
 
-    const names = Array.from(new Set(data.flatMap((d) => [d.source, d.target]))).sort(d3.ascending)
+    const names = Array.from(new Set(data.flatMap((d) => [d.source, d.target]))).sort(d3.descending)
 
     function matrix() {
       const index = new Map(names.map((name, i) => [name, i]))
       const matrix = Array.from(index, () => new Array(names.length).fill(0))
       for (const { source, target, value } of data) matrix[index.get(source)][index.get(target)] += value
-      return matrix
+      const logMatrix = matrix.map((a) => a.map((v) => (v === 0) ? 0 : Math.log(v)))
+      return logMatrix
     }
     const color = d3.scaleOrdinal(names, d3.quantize(d3.interpolateRainbow, names.length))
 
@@ -89,8 +90,9 @@ class D3Class {
       .attr('d', ribbon)
       .on('mouseover', popout)
       .on('mouseout', popback)
+      .on('click', onDatapointClick)
       .append('title')
-      .text((d) => `${names[d.source.index]} → ${names[d.target.index]} ${d.source.value}`)
+      .text((d) => `${names[d.source.index]} → ${names[d.target.index]} ${expValue(d.source.value)}`)
 
     const group = g
       .append('g')
@@ -103,8 +105,6 @@ class D3Class {
     group
       .append('path')
       .attr('fill', (d) => color(names[d.index]))
-      .on("mouseover", overed)
-      .on("mouseout", outed)
       .attr('d', arc)
 
 
@@ -125,15 +125,21 @@ class D3Class {
       .text((d) => names[d.index])
       .on("mouseover", overed)
       .on("mouseout", outed)
+      .on('click', onDatapointClick)
 
     group.append('title').text(
       (d) => `${names[d.index]}
-        ${d3.sum(chords, (c) => (c.source.index === d.index) * c.source.value)} outgoing
-        ${d3.sum(chords, (c) => (c.target.index === d.index) * c.source.value)} incoming`
+      ${d3.sum(chords, c => (c.source.index === d.index) * expValue(c.source.value))} outgoing →
+      ${d3.sum(chords, c => (c.target.index === d.index) * expValue(c.source.value))} incoming ←`
     )
+    function expValue(val) {
+
+      return val===0 ? 0 : Math.round(Math.exp(val))
+    }
 
     function popout(event, d) {
-      console.log("🚀 ~ file: d3class.js ~ line 127 ~ D3Class ~ readData ~ d", d)
+      console.log(names[d.source.index] + ` value: ${d.source.value} to ${names[d.target.index]} value: ${d.target.value}`)
+      console.log(d)
       d3.select(this)
         .attr('fill-opacity', 1)
         .raise()
@@ -146,7 +152,7 @@ class D3Class {
     }
 
     function overed(event, d) {
-      console.log("🚀 ~ file: d3class.js ~ line 127 ~ D3Class ~ overed ~ d", d)
+      console.log(names[d.index] + ` value: ${d.value}`)
       d3.select(this).attr('font-weight', 'bold')
     }
 
