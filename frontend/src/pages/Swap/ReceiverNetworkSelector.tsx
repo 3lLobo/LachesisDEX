@@ -323,7 +323,22 @@ export default function ReceiverNetworkSelector() {
             <Row
               onSelectChain={handleChainSwitch}
               currentReceiverChainId={receiverChaindId}
+              targetChain={SupportedChainId.GOERLI}
+            />
+            <Row
+              onSelectChain={handleChainSwitch}
+              currentReceiverChainId={receiverChaindId}
+              targetChain={SupportedChainId.RINKEBY}
+            />
+            <Row
+              onSelectChain={handleChainSwitch}
+              currentReceiverChainId={receiverChaindId}
               targetChain={SupportedChainId.POLYGON}
+            />
+            <Row
+              onSelectChain={handleChainSwitch}
+              currentReceiverChainId={receiverChaindId}
+              targetChain={SupportedChainId.POLYGON_MUMBAI}
             />
             <Row
               onSelectChain={handleChainSwitch}
