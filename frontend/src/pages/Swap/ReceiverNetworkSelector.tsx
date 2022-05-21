@@ -282,12 +282,19 @@ export default function ReceiverNetworkSelector() {
     } else if (urlChainId && urlChainId !== chainId) {
       handleChainSwitch(urlChainId, true)
     }
+    if (!info || !receiverChaindId) {
+      setInfo(chainId ? CHAIN_INFO[chainId] : undefined)
+      setReceiverChaindId(chainId ? chainId : undefined)
+    }
   }, [chainId, urlChainId, prevChainId, handleChainSwitch])
 
   // set chain parameter on initial load if not there
   useEffect(() => {
     if (chainId && !urlChainId) {
-      //
+      if (!info || !receiverChaindId) {
+        setInfo(chainId ? CHAIN_INFO[chainId] : undefined)
+        setReceiverChaindId(chainId ? chainId : undefined)
+      }
     }
   }, [chainId, history, urlChainId, urlChain])
 

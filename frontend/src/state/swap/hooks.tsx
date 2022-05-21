@@ -218,17 +218,18 @@ function validatedRecipient(recipient: any): string | null {
 
 export function queryParametersToSwapState(parsedQs: ParsedQs): SwapState {
   let inputCurrency = parseCurrencyFromURLParameter(parsedQs.inputCurrency)
-  let outputCurrency = parseCurrencyFromURLParameter(parsedQs.outputCurrency)
+  const outputCurrency = parseCurrencyFromURLParameter(parsedQs.outputCurrency)
   const typedValue = parseTokenAmountURLParameter(parsedQs.exactAmount)
   const independentField = parseIndependentFieldURLParameter(parsedQs.exactField)
 
   if (inputCurrency === '' && outputCurrency === '' && typedValue === '' && independentField === Field.INPUT) {
     // Defaults to having the native currency selected
     inputCurrency = 'ETH'
-  } else if (inputCurrency === outputCurrency) {
-    // clear output if identical
-    outputCurrency = ''
   }
+  // else if (inputCurrency === outputCurrency) {
+  //   // clear output if identical
+  //   outputCurrency = ''
+  // }
 
   const recipient = validatedRecipient(parsedQs.recipient)
 
