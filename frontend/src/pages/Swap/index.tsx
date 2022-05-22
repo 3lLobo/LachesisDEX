@@ -9,6 +9,7 @@ import UnsupportedCurrencyFooter from 'components/swap/UnsupportedCurrencyFooter
 import { MouseoverTooltip } from 'components/Tooltip'
 import useActiveWeb3React from 'hooks/useActiveWeb3React'
 import { useSwapCallback } from 'hooks/useSwapCallback'
+import { useSwingSwapCallback } from 'hooks/useSwingSwapCallback'
 import useTransactionDeadline from 'hooks/useTransactionDeadline'
 import JSBI from 'jsbi'
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
@@ -191,6 +192,14 @@ export default function Swap({ history }: RouteComponentProps) {
     [onUserInput]
   )
 
+  const [receiverChainId, setReceiverChainId] = useState<number | undefined>(undefined)
+  const chainIdChanged = useCallback(
+    (value: number) => {
+      setReceiverChainId(value)
+    },
+    [setReceiverChainId]
+  )
+
   // reset if they close warning without tokens in params
   const handleDismissTokenWarning = useCallback(() => {
     setDismissTokenWarning(true)
@@ -287,7 +296,7 @@ export default function Swap({ history }: RouteComponentProps) {
   const showMaxButton = Boolean(maxInputAmount?.greaterThan(0) && !parsedAmounts[Field.INPUT]?.equalTo(maxInputAmount))
 
   // the callback to execute the swap
-  const { callback: swapCallback, error: swapCallbackError } = useSwapCallback(
+  const { callback: swapCallback, error: swapCallbackError } = useSwingSwapCallback(
     approvalOptimizedTrade,
     allowedSlippage,
     recipient,
@@ -298,9 +307,9 @@ export default function Swap({ history }: RouteComponentProps) {
     if (!swapCallback) {
       return
     }
-    if (priceImpact && !confirmPriceImpactWithoutFee(priceImpact)) {
-      return
-    }
+    // if (priceImpact && !confirmPriceImpactWithoutFee(priceImpact)) {
+    //   return
+    // }
     setSwapState({ attemptingTxn: true, tradeToConfirm, showConfirm, swapErrorMessage: undefined, txHash: undefined })
     swapCallback()
       .then((hash) => {
@@ -449,6 +458,7 @@ export default function Swap({ history }: RouteComponentProps) {
                 showCommonBases={true}
                 id="swap-currency-input"
                 loading={independentField === Field.OUTPUT && routeIsSyncing}
+                chainId={chainId}
               />
               <ArrowWrapper clickable>
                 <ArrowDown
@@ -461,7 +471,7 @@ export default function Swap({ history }: RouteComponentProps) {
                 />
               </ArrowWrapper>
               <NetworkElement>
-                <ReceiverNetworkSelector />
+                <ReceiverNetworkSelector chainIdChanged={chainIdChanged} />
               </NetworkElement>
               <CurrencyInputPanel
                 value={formattedAmounts[Field.OUTPUT]}
@@ -477,6 +487,7 @@ export default function Swap({ history }: RouteComponentProps) {
                 showCommonBases={true}
                 id="swap-currency-output"
                 loading={independentField === Field.INPUT && routeIsSyncing}
+                chainId={receiverChainId}
               />
             </div>
 
@@ -524,12 +535,6 @@ export default function Swap({ history }: RouteComponentProps) {
                     <Trans>Unwrap</Trans>
                   ) : null}
                 </ButtonPrimary>
-              ) : routeNotFound && userHasSpecifiedInputOutput && !routeIsLoading && !routeIsSyncing ? (
-                <GreyCard style={{ textAlign: 'center' }}>
-                  <ThemedText.Main mb="4px">
-                    <Trans>Insufficient liquidity for this trade.</Trans>
-                  </ThemedText.Main>
-                </GreyCard>
               ) : showApproveFlow ? (
                 <AutoRow style={{ flexWrap: 'nowrap', width: '100%' }}>
                   <AutoColumn style={{ width: '100%' }} gap="12px">
@@ -595,23 +600,11 @@ export default function Swap({ history }: RouteComponentProps) {
                       }}
                       width="100%"
                       id="swap-button"
-                      disabled={
-                        !isValid ||
-                        routeIsSyncing ||
-                        routeIsLoading ||
-                        (approvalState !== ApprovalState.APPROVED && signatureState !== UseERC20PermitState.SIGNED) ||
-                        priceImpactTooHigh
-                      }
+                      disabled={false}
                       error={isValid && priceImpactSeverity > 2}
                     >
                       <Text fontSize={16} fontWeight={500}>
-                        {priceImpactTooHigh ? (
-                          <Trans>High Price Impact</Trans>
-                        ) : trade && priceImpactSeverity > 2 ? (
-                          <Trans>Swap Anyway</Trans>
-                        ) : (
-                          <Trans>Swap</Trans>
-                        )}
+                        <Trans>Swap</Trans>
                       </Text>
                     </ButtonError>
                   </AutoColumn>
@@ -632,21 +625,11 @@ export default function Swap({ history }: RouteComponentProps) {
                     }
                   }}
                   id="swap-button"
-                  disabled={!isValid || routeIsSyncing || routeIsLoading || priceImpactTooHigh || !!swapCallbackError}
+                  disabled={false}
                   error={isValid && priceImpactSeverity > 2 && !swapCallbackError}
                 >
                   <Text fontSize={20} fontWeight={500}>
-                    {swapInputError ? (
-                      swapInputError
-                    ) : routeIsSyncing || routeIsLoading ? (
-                      <Trans>Swap</Trans>
-                    ) : priceImpactSeverity > 2 ? (
-                      <Trans>Swap Anyway</Trans>
-                    ) : priceImpactTooHigh ? (
-                      <Trans>Price Impact Too High</Trans>
-                    ) : (
-                      <Trans>Swap</Trans>
-                    )}
+                    <Trans>Swap</Trans>
                   </Text>
                 </ButtonError>
               )}

@@ -239,7 +239,11 @@ const getChainNameFromId = (id: string | number) => {
   return CHAIN_IDS_TO_NAMES[id as SupportedChainId] || ''
 }
 
-export default function ReceiverNetworkSelector() {
+interface ReceiverNetworkSelectorProps {
+  chainIdChanged: (value: number) => void
+}
+
+export default function ReceiverNetworkSelector({ chainIdChanged }: ReceiverNetworkSelectorProps) {
   const { chainId, library } = useActiveWeb3React()
   const parsedQs = useParsedQueryString()
   const { urlChain, urlChainId } = getParsedChainId(parsedQs)
@@ -263,11 +267,12 @@ export default function ReceiverNetworkSelector() {
       if (!skipToggle) {
         toggle()
       }
-      if (targetChain == chainId) {
-        dispatch(addPopup({ content: { failedSwitchNetwork: targetChain }, key: `failed-network-switch` }))
-      }
+      // if (targetChain == chainId) {
+      //   dispatch(addPopup({ content: { failedSwitchNetwork: targetChain }, key: `failed-network-switch` }))
+      // }
       setInfo(targetChain ? CHAIN_INFO[targetChain] : undefined)
       setReceiverChaindId(targetChain)
+      chainIdChanged(targetChain)
     },
     [dispatch, library, toggle, chainId]
   )
@@ -285,6 +290,7 @@ export default function ReceiverNetworkSelector() {
     if (!info || !receiverChaindId) {
       setInfo(chainId ? CHAIN_INFO[chainId] : undefined)
       setReceiverChaindId(chainId ? chainId : undefined)
+      chainIdChanged(chainId)
     }
   }, [chainId, urlChainId, prevChainId, handleChainSwitch])
 
@@ -294,6 +300,7 @@ export default function ReceiverNetworkSelector() {
       if (!info || !receiverChaindId) {
         setInfo(chainId ? CHAIN_INFO[chainId] : undefined)
         setReceiverChaindId(chainId ? chainId : undefined)
+        chainIdChanged(chainId)
       }
     }
   }, [chainId, history, urlChainId, urlChain])

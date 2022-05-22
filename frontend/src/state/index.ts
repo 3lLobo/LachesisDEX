@@ -13,7 +13,7 @@ import logs from './logs/slice'
 import mint from './mint/reducer'
 import mintV3 from './mint/v3/reducer'
 import { routingApi } from './routing/slice'
-import { routingSwingApi } from './routing/sliceSwing'
+import { routingSwingApi, swapSwingApi } from './routing/sliceSwing'
 import swap from './swap/reducer'
 import transactions from './transactions/reducer'
 import user from './user/reducer'
@@ -36,12 +36,14 @@ const store = configureStore({
     [dataApi.reducerPath]: dataApi.reducer,
     [routingApi.reducerPath]: routingApi.reducer,
     [routingSwingApi.reducerPath]: routingSwingApi.reducer,
+    [swapSwingApi.reducerPath]: swapSwingApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({ thunk: true })
       .concat(dataApi.middleware)
       .concat(routingApi.middleware)
       .concat(routingSwingApi.middleware)
+      .concat(swapSwingApi.middleware)
       .concat(save({ states: PERSISTED_KEYS, debounce: 1000 })),
   preloadedState: load({ states: PERSISTED_KEYS, disableWarnings: process.env.NODE_ENV === 'test' }),
 })

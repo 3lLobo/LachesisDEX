@@ -13,6 +13,7 @@ import Manage from './Manage'
 
 interface CurrencySearchModalProps {
   isOpen: boolean
+  chainId?: number | undefined
   onDismiss: () => void
   selectedCurrency?: Currency | null
   onCurrencySelect: (currency: Currency) => void
@@ -31,6 +32,7 @@ export enum CurrencyModalView {
 
 export default function CurrencySearchModal({
   isOpen,
+  chainId,
   onDismiss,
   onCurrencySelect,
   selectedCurrency,
@@ -81,6 +83,7 @@ export default function CurrencySearchModal({
       content = (
         <CurrencySearch
           isOpen={isOpen}
+          currentChainId={chainId}
           onDismiss={onDismiss}
           onCurrencySelect={handleCurrencySelect}
           selectedCurrency={selectedCurrency}

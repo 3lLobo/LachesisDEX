@@ -46,6 +46,7 @@ const Footer = styled.div`
 
 interface CurrencySearchProps {
   isOpen: boolean
+  currentChainId?: number | undefined
   onDismiss: () => void
   selectedCurrency?: Currency | null
   onCurrencySelect: (currency: Currency) => void
@@ -70,6 +71,7 @@ export function CurrencySearch({
   showManageView,
   showImportView,
   setImportToken,
+  currentChainId,
 }: CurrencySearchProps) {
   const { chainId } = useActiveWeb3React()
   const theme = useTheme()
@@ -141,6 +143,7 @@ export function CurrencySearch({
     const input = event.target.value
     const checksummedInput = isAddress(input)
     setSearchQuery(checksummedInput || input)
+    /// eto zao
     fixedList.current?.scrollTo(0)
   }, [])
 
@@ -195,7 +198,11 @@ export function CurrencySearch({
           />
         </Row>
         {showCommonBases && (
-          <CommonBases chainId={chainId} onSelect={handleCurrencySelect} selectedCurrency={selectedCurrency} />
+          <CommonBases
+            chainId={currentChainId ?? chainId}
+            onSelect={handleCurrencySelect}
+            selectedCurrency={selectedCurrency}
+          />
         )}
       </PaddedColumn>
       <Separator />
