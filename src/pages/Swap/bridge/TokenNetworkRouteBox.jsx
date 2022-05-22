@@ -11,12 +11,12 @@ const TokenNetworkRouteBox = ({ info }) => {
           <div className="token-wrapper">
             {/* <TokenIconImg size={16} mr={7} token={info.token} /> */}
             <div>
-              <div className="symbol">{info.token.symbol}</div>
-              <div className="amount">{limitDecimalNumbers(info.amount)}</div>
+              {/* <div className="symbol">{info.token.symbol}</div> */}
+              <div className="amount">{limitDecimalNumbers(info?.amount)}</div>
             </div>
           </div>
-          <div className="network-name" style={{ backgroundColor: info.network.color }}>
-            <div className="text">{info.network.name}</div>
+          <div className="network-name" >
+            <div className="text">{info?.network?.label}</div>
           </div>
         </div>
       )}

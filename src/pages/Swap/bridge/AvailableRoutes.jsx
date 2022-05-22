@@ -14,8 +14,8 @@ export default function AvailableRoutes(props) {
     // value being displayed to the users => return amount -  desinationTxFee - bridgeFee
     // const { estimatedReturnAmountDeductedByFees, totalFeeWithoutGas } =
     // Wallet.returnEstimatedReturnAmountDeductedByFees(v);
-    const estimatedReturnAmountDeductedByFees = 1110
-    const totalFeeWithoutGas = 10
+    const estimatedReturnAmountDeductedByFees = 111
+    const totalFeeWithoutGas = 1
 
     route.push({
       type: 'token-network',
@@ -76,7 +76,7 @@ export default function AvailableRoutes(props) {
           <div>
             <ion-icon name="alert-circle-outline" />
           </div>
-          <div>SWING routes availabe</div>
+          <div>SWING routes availabe:</div>
         </div>
       </div>
       {routes

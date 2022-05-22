@@ -1,15 +1,17 @@
-import React from 'react';
 import TokenNetworkRouteBox from './TokenNetworkRouteBox';
 import SwapRouteBox from './SwapRouteBox';
 import AdditionalInfoItem from './AdditionalInfoItem';
 import DashedDivider from './DashedDivider';
+import {CHAIN_INFO } from '../../../constants/chainInfo.ts'
 
 const RouteItemView = ({ data }) => {
-  console.log("DATA: ",data)
   return (
     <div className="bridge-route-item">
       {data.length > 0 &&
         data.map((item, index) => {
+          const chainId = item.network
+          item.chainId = chainId
+          item.network = CHAIN_INFO[chainId]
           switch (item.type) {
             case 'token-network':
               return (

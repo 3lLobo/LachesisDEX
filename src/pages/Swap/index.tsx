@@ -268,7 +268,7 @@ export default function Swap({ history }: RouteComponentProps) {
         }
       } else {
         await approveCallback()
-  
+
         ReactGA.event({
           category: 'Swap',
           action: 'Approve',
@@ -319,7 +319,13 @@ export default function Swap({ history }: RouteComponentProps) {
     setSwapState({ attemptingTxn: true, tradeToConfirm, showConfirm, swapErrorMessage: undefined, txHash: undefined })
     swapCallback()
       .then((hash) => {
-        setSwapState({ attemptingTxn: false, tradeToConfirm, showConfirm, swapErrorMessage: undefined, txHash: hash ? hash.toString() : undefined })
+        setSwapState({
+          attemptingTxn: false,
+          tradeToConfirm,
+          showConfirm,
+          swapErrorMessage: undefined,
+          txHash: hash ? hash.toString() : undefined,
+        })
         ReactGA.event({
           category: 'Swap',
           action: 'transaction hash',
@@ -364,7 +370,7 @@ export default function Swap({ history }: RouteComponentProps) {
   ])
 
   const handleSwingSwap = useCallback(() => {
-    console.log("🚀 ~ file: index.tsx ~ line 593 ~ Swap ~ (chainId !== receiverChainId)", (chainId !== receiverChainId))
+    console.log('🚀 ~ file: index.tsx ~ line 593 ~ Swap ~ (chainId !== receiverChainId)', chainId !== receiverChainId)
     if (!swapCallback) {
       return
     }
@@ -375,7 +381,13 @@ export default function Swap({ history }: RouteComponentProps) {
     swapCallback()
       .then((hash) => {
         console.log('UUUUUUU', hash)
-        setSwapState({ attemptingTxn: false, tradeToConfirm, showConfirm, swapErrorMessage: undefined, txHash: hash ? hash.toString() : undefined });
+        setSwapState({
+          attemptingTxn: false,
+          tradeToConfirm,
+          showConfirm,
+          swapErrorMessage: undefined,
+          txHash: hash ? hash.toString() : undefined,
+        })
         ReactGA.event({
           category: 'Swap',
           action:
@@ -695,10 +707,17 @@ export default function Swap({ history }: RouteComponentProps) {
                   </Text>
                 </ButtonError>
               )}
-              {isExpertMode && swapErrorMessage ? <SwapCallbackError error={swapErrorMessage} /> : null}
+              {(isExpertMode) && swapErrorMessage ? <SwapCallbackError error={swapErrorMessage} /> : null}
             </div>
           </AutoColumn>
-          { (chainId !== receiverChainId) &&<MockAvailableRoutes /> }
+          {(chainId !== receiverChainId) && (
+            <MockAvailableRoutes
+              toAddress={account}
+              fromAddress={account}
+              toChain={chainId}
+              fromChain={receiverChainId}
+            />
+          )}
         </Wrapper>
       </AppBody>
       <D3Card />

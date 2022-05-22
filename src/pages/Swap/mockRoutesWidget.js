@@ -2,14 +2,15 @@ import AvailableRoutes from './bridge/AvailableRoutes'
 import { mockRoutes } from './bridge/mockRoutes'
 import { useState } from 'react'
 
-export default function MockAvailableRoutes() {
+export default function MockAvailableRoutes({toAddress, fromAddress, toChain, fromChain}) {
+
   // const [transactionHash, setTransactionHash] = useState('');
   const [showRoutes, setShowRoutes] = useState(true)
 
-  const myaddress = '0x3ECC53F7Ba45508483379bd76989A3003E6cbf09'
-  const fromChain = 'eth'
-  const toChain = 'polygon'
-  const fromAmount = 1000000000000000000
+  // const myaddress = '0x3ECC53F7Ba45508483379bd76989A3003E6cbf09'
+  // const fromChain = 'eth'
+  // const toChain = 'polygon'
+  const fromAmount = 11
 
   return (
     <div className="App">
@@ -17,8 +18,8 @@ export default function MockAvailableRoutes() {
         showRoutes={showRoutes}
         showUnavailable={false}
         loading={false}
-        to={myaddress}
-        from={myaddress}
+        to={toAddress}
+        from={fromAddress}
         toChain={toChain}
         fromChain={fromChain}
         fromAmount={fromAmount}
