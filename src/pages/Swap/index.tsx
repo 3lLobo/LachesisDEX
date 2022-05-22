@@ -18,7 +18,6 @@ import { RouteComponentProps } from 'react-router-dom'
 import { Text } from 'rebass'
 import { TradeState } from 'state/routing/types'
 import styled, { ThemeContext } from 'styled-components/macro'
-import D3Card from '../../components/D3chart/d3component'
 
 import AddressInputPanel from '../../components/AddressInputPanel'
 import { ButtonConfirmed, ButtonError, ButtonLight, ButtonPrimary } from '../../components/Button'
@@ -634,7 +633,6 @@ export default function Swap({ history }: RouteComponentProps) {
           </AutoColumn>
         </Wrapper>
       </AppBody>
-      <D3Card />
       <AlertWrapper>
         <NetworkAlert />
       </AlertWrapper>

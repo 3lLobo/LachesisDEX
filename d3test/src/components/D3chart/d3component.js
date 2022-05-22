@@ -3,58 +3,29 @@ import { useState, useEffect, useRef } from 'react'
 import * as d3 from 'd3'
 import resflare from './flare.json'
 import d3class from './d3class'
-import { useQuery } from "@apollo/client"
-
-import { swapQuery } from '../../graphQL/queries'
 
 // let vis
 export default function D3Card() {
-
+  // const onClickFunction = onSunburstClick
+  //   const svgBoxBg = useColorModeValue('white', 'gray.700')
   const cardWidth = 800
+  // const svgFontColor = useColorModeValue('black', 'whitesmoke')
+
   const [data, setData] = useState(null)
-  const { loading, error, data: gqlData } = useQuery(swapQuery,
-    {
-      variables: {
-        "first": 311,
-        "orderBy": "timestamp",
-        "where": {
-          "amountUSD_gt": 111
-        },
-        "orderDirection": "desc"
-      },
-      notifyOnNetworkStatusChange: true,
-      pollInterval: 11000,
-      onCompleted: (d) => mutateGraphData(d),
-    }
-  )
-
-
-  function mutateGraphData(graphData) {
-    const newData = graphData.swaps.map((d) => {
-      return {
-        'source': d.token0.symbol,
-        'target': d.token1.symbol,
-        'value': Math.round(d.amountUSD),
-      }
-    })
-    console.log("🚀 ~ file: d3component.js ~ line 39 ~ newData ~ newData", newData)
-    setData(newData)
-  }
-
   const boxref = useRef()
   const paddingBox = 22
   const [svgWidth, setSvgWidth] = useState(cardWidth - 2 * paddingBox)
   const [vis, setVis] = useState()
 
-  // useEffect(() => {
-  //   async function fetchApi() {
-  //     //   const resFlare = await (await fetch('/api/flareData')).json()
-  //     //   setData(resFlare.flareData)
-  //     setData(resflare)
-  //   }
-  //   fetchApi()
-  //   // fetchData()
-  // }, [])
+  useEffect(() => {
+    async function fetchApi() {
+      //   const resFlare = await (await fetch('/api/flareData')).json()
+      //   setData(resFlare.flareData)
+      setData(resflare)
+    }
+    fetchApi()
+    // fetchData()
+  }, [])
 
   useEffect(() => {
     setSvgWidth(() => cardWidth - 2 * paddingBox)
@@ -79,7 +50,8 @@ export default function D3Card() {
 
   function onClick(e, p) {
     console.log('Click', p)
-    // setActive(p.data.name + ': ' + p.value.toString())
+
+    setActive(p.data.name + ': ' + p.value.toString())
   }
 
   function initVis() {
@@ -100,6 +72,8 @@ export default function D3Card() {
       }
     }
   }
+
+  console.log('Ref: ', refElement)
 
   return (
     <div
