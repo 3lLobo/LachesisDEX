@@ -2,6 +2,7 @@
 .env
 swingtest
 polkaswitch-ui
+build/
 
 
 # Logs
