@@ -3,7 +3,7 @@ import { Pair, Route as V2Route } from '@uniswap/v2-sdk'
 import { FeeAmount, Pool, Route as V3Route } from '@uniswap/v3-sdk'
 
 import { nativeOnChain } from '../../constants/tokens'
-import { GetQuoteResult, InterfaceTrade, V2PoolInRoute, V3PoolInRoute } from './types'
+import { GetQuoteResult, GetSwingQuoteResult, InterfaceTrade, V2PoolInRoute, V3PoolInRoute } from './types'
 
 /**
  * Transforms a Routing API quote into an array of routes that can be used to create
@@ -43,6 +43,47 @@ export function computeRoutes(
       return {
         routev3: isV3Route(route) ? new V3Route(route.map(parsePool), parsedCurrencyIn, parsedCurrencyOut) : null,
         routev2: !isV3Route(route) ? new V2Route(route.map(parsePair), parsedCurrencyIn, parsedCurrencyOut) : null,
+        inputAmount: CurrencyAmount.fromRawAmount(parsedCurrencyIn, rawAmountIn),
+        outputAmount: CurrencyAmount.fromRawAmount(parsedCurrencyOut, rawAmountOut),
+      }
+    })
+  } catch (e) {
+    // `Route` constructor may throw if inputs/outputs are temporarily out of sync
+    // (RTK-Query always returns the latest data which may not be the right inputs/outputs)
+    // This is not fatal and will fix itself in future render cycles
+    console.error(e)
+    return undefined
+  }
+}
+
+/**
+ * Transforms a Routing API quote into an array of routes that can be used to create
+ * a `Trade`.
+ */
+export function computeSwingRoutes(
+  currencyIn: Currency | undefined,
+  currencyOut: Currency | undefined,
+  amount: CurrencyAmount<Currency> | undefined,
+  quoteResult: Pick<GetSwingQuoteResult, 'routes'> | undefined
+) {
+  if (!quoteResult || !quoteResult.routes || !currencyIn || !currencyOut) return undefined
+
+  if (quoteResult.routes.length === 0) return []
+
+  const parsedCurrencyIn = currencyIn.wrapped
+  const parsedCurrencyOut = currencyOut.wrapped
+
+  try {
+    return quoteResult.routes.map((route) => {
+      const rawAmountIn = amount?.quotient.toString()
+      const rawAmountOut = route.quote
+
+      if (!rawAmountIn || !rawAmountOut) {
+        throw new Error('Expected both amountIn and amountOut to be present')
+      }
+
+      return {
+        route: route,
         inputAmount: CurrencyAmount.fromRawAmount(parsedCurrencyIn, rawAmountIn),
         outputAmount: CurrencyAmount.fromRawAmount(parsedCurrencyOut, rawAmountOut),
       }

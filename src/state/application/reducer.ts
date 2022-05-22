@@ -26,6 +26,7 @@ export enum ApplicationModal {
   SETTINGS,
   VOTE,
   WALLET,
+  SWAP_RECEIVER_NETWORK_SELECTOR,
 }
 
 type PopupList = Array<{ key: string; show: boolean; content: PopupContent; removeAfterMs: number | null }>

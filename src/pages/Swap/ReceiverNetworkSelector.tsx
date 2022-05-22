@@ -1,4 +1,3 @@
-import { Trans } from '@lingui/macro'
 import { CHAIN_INFO } from 'constants/chainInfo'
 import { CHAIN_IDS_TO_NAMES, SupportedChainId } from 'constants/chains'
 import useActiveWeb3React from 'hooks/useActiveWeb3React'
@@ -6,17 +5,15 @@ import { useOnClickOutside } from 'hooks/useOnClickOutside'
 import useParsedQueryString from 'hooks/useParsedQueryString'
 import usePrevious from 'hooks/usePrevious'
 import { ParsedQs } from 'qs'
-import { useCallback, useEffect, useRef } from 'react'
-import { ArrowDownCircle, ChevronDown } from 'react-feather'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useHistory } from 'react-router-dom'
 import { useModalOpen, useToggleModal } from 'state/application/hooks'
 import { addPopup, ApplicationModal } from 'state/application/reducer'
+import { useAppDispatch } from 'state/hooks'
 import styled from 'styled-components/macro'
 import { ExternalLink, MEDIA_WIDTHS } from 'theme'
-import { replaceURLParam } from 'utils/routes'
-
-import { useAppDispatch } from '../../state/hooks'
-import { switchToNetwork } from '../../utils/switchToNetwork'
+import { ArrowDownCircle, ChevronDown } from 'react-feather'
+import { Trans } from '@lingui/macro'
 
 const ActiveRowLinkList = styled.div`
   display: flex;
@@ -144,6 +141,10 @@ const BridgeLabel = ({ chainId }: { chainId: SupportedChainId }) => {
     case SupportedChainId.ARBITRUM_ONE:
     case SupportedChainId.ARBITRUM_RINKEBY:
       return <Trans>Arbitrum Bridge</Trans>
+    case SupportedChainId.FANTOM:
+      return <Trans>Fantom Bridge</Trans>
+    case SupportedChainId.FANTOM_TESTNET:
+      return <Trans>Fantom TestNet Bridge</Trans>
     case SupportedChainId.OPTIMISM:
     case SupportedChainId.OPTIMISTIC_KOVAN:
       return <Trans>Optimism Bridge</Trans>
@@ -165,30 +166,31 @@ const ExplorerLabel = ({ chainId }: { chainId: SupportedChainId }) => {
     case SupportedChainId.POLYGON:
     case SupportedChainId.POLYGON_MUMBAI:
       return <Trans>Polygonscan</Trans>
+    case SupportedChainId.FANTOM:
+      return <Trans>Fantom Explorer</Trans>
+    case SupportedChainId.FANTOM_TESTNET:
+      return <Trans>Fantom TestNet Explorer</Trans>
     default:
       return <Trans>Etherscan</Trans>
   }
 }
-
 function Row({
   targetChain,
+  currentReceiverChainId,
   onSelectChain,
 }: {
   targetChain: SupportedChainId
+  currentReceiverChainId: number | undefined
   onSelectChain: (targetChain: number) => void
 }) {
-  const { library, chainId } = useActiveWeb3React()
-  if (!library || !chainId) {
-    return null
-  }
-  const active = chainId === targetChain
+  const active = currentReceiverChainId === targetChain
   const { helpCenterUrl, explorer, bridge, label, logoUrl } = CHAIN_INFO[targetChain]
 
   const rowContent = (
     <FlyoutRow onClick={() => onSelectChain(targetChain)} active={active}>
       <Logo src={logoUrl} />
       <NetworkLabel>{label}</NetworkLabel>
-      {chainId === targetChain && <FlyoutRowActiveIndicator />}
+      {currentReceiverChainId === targetChain && <FlyoutRowActiveIndicator />}
     </FlyoutRow>
   )
 
@@ -199,12 +201,12 @@ function Row({
         <ActiveRowLinkList>
           {bridge ? (
             <ExternalLink href={bridge}>
-              <BridgeLabel chainId={chainId} /> <LinkOutCircle />
+              <BridgeLabel chainId={currentReceiverChainId} /> <LinkOutCircle />
             </ExternalLink>
           ) : null}
           {explorer ? (
             <ExternalLink href={explorer}>
-              <ExplorerLabel chainId={chainId} /> <LinkOutCircle />
+              <ExplorerLabel chainId={currentReceiverChainId} /> <LinkOutCircle />
             </ExternalLink>
           ) : null}
           {helpCenterUrl ? (
@@ -237,51 +239,42 @@ const getChainNameFromId = (id: string | number) => {
   return CHAIN_IDS_TO_NAMES[id as SupportedChainId] || ''
 }
 
-export default function NetworkSelector() {
+interface ReceiverNetworkSelectorProps {
+  chainIdChanged: (value: number) => void
+}
+
+export default function ReceiverNetworkSelector({ chainIdChanged }: ReceiverNetworkSelectorProps) {
   const { chainId, library } = useActiveWeb3React()
   const parsedQs = useParsedQueryString()
   const { urlChain, urlChainId } = getParsedChainId(parsedQs)
   const prevChainId = usePrevious(chainId)
   const node = useRef<HTMLDivElement>()
-  const open = useModalOpen(ApplicationModal.NETWORK_SELECTOR)
-  const toggle = useToggleModal(ApplicationModal.NETWORK_SELECTOR)
+  const open = useModalOpen(ApplicationModal.SWAP_RECEIVER_NETWORK_SELECTOR)
+  const toggle = useToggleModal(ApplicationModal.SWAP_RECEIVER_NETWORK_SELECTOR)
   useOnClickOutside(node, open ? toggle : undefined)
 
   const history = useHistory()
 
-  const info = chainId ? CHAIN_INFO[chainId] : undefined
+  //let info = chainId ? CHAIN_INFO[chainId] : undefined
+  const [info, setInfo] = useState(chainId ? CHAIN_INFO[chainId] : undefined)
+  const [receiverChainId, setReceiverChainId] = useState(chainId ? chainId : undefined)
 
   const dispatch = useAppDispatch()
 
   const handleChainSwitch = useCallback(
     (targetChain: number, skipToggle?: boolean) => {
       if (!library?.provider) return
-      switchToNetwork({ provider: library.provider, chainId: targetChain })
-        .then(() => {
-          if (!skipToggle) {
-            toggle()
-          }
-          history.replace({
-            search: replaceURLParam(history.location.search, 'chain', getChainNameFromId(targetChain)),
-          })
-        })
-        .catch((error) => {
-          console.error('Failed to switch networks', error)
-
-          // we want app network <-> chainId param to be in sync, so if user changes the network by changing the URL
-          // but the request fails, revert the URL back to current chainId
-          if (chainId) {
-            history.replace({ search: replaceURLParam(history.location.search, 'chain', getChainNameFromId(chainId)) })
-          }
-
-          if (!skipToggle) {
-            toggle()
-          }
-
-          dispatch(addPopup({ content: { failedSwitchNetwork: targetChain }, key: `failed-network-switch` }))
-        })
+      if (!skipToggle) {
+        toggle()
+      }
+      // if (targetChain == chainId) {
+      //   dispatch(addPopup({ content: { failedSwitchNetwork: targetChain }, key: `failed-network-switch` }))
+      // }
+      setInfo(targetChain ? CHAIN_INFO[targetChain] : undefined)
+      setReceiverChainId(targetChain)
+      chainIdChanged(targetChain)
     },
-    [dispatch, library, toggle, history, chainId]
+    [dispatch, library, toggle, chainId]
   )
 
   useEffect(() => {
@@ -289,17 +282,26 @@ export default function NetworkSelector() {
 
     // when network change originates from wallet or dropdown selector, just update URL
     if (chainId !== prevChainId) {
-      history.replace({ search: replaceURLParam(history.location.search, 'chain', getChainNameFromId(chainId)) })
+      //
       // otherwise assume network change originates from URL
     } else if (urlChainId && urlChainId !== chainId) {
       handleChainSwitch(urlChainId, true)
     }
-  }, [chainId, urlChainId, prevChainId, handleChainSwitch, history])
+    if (!info || !receiverChainId) {
+      setInfo(chainId ? CHAIN_INFO[chainId] : undefined)
+      setReceiverChainId(chainId ? chainId : undefined)
+      chainIdChanged(chainId)
+    }
+  }, [chainId, urlChainId, prevChainId, handleChainSwitch])
 
   // set chain parameter on initial load if not there
   useEffect(() => {
     if (chainId && !urlChainId) {
-      history.replace({ search: replaceURLParam(history.location.search, 'chain', getChainNameFromId(chainId)) })
+      if (!info || !receiverChainId) {
+        setInfo(chainId ? CHAIN_INFO[chainId] : undefined)
+        setReceiverChainId(chainId ? chainId : undefined)
+        chainIdChanged(chainId)
+      }
     }
   }, [chainId, history, urlChainId, urlChain])
 
@@ -320,14 +322,46 @@ export default function NetworkSelector() {
             <FlyoutHeader>
               <Trans>Select a network</Trans>
             </FlyoutHeader>
-            <Row onSelectChain={handleChainSwitch} targetChain={SupportedChainId.MAINNET} />
-            <Row onSelectChain={handleChainSwitch} targetChain={SupportedChainId.GOERLI} />
-            <Row onSelectChain={handleChainSwitch} targetChain={SupportedChainId.RINKEBY} />
-            <Row onSelectChain={handleChainSwitch} targetChain={SupportedChainId.POLYGON} />
-            <Row onSelectChain={handleChainSwitch} targetChain={SupportedChainId.POLYGON_MUMBAI} />
-            <Row onSelectChain={handleChainSwitch} targetChain={SupportedChainId.OPTIMISM} />
-            <Row onSelectChain={handleChainSwitch} targetChain={SupportedChainId.ARBITRUM_ONE} />
-            <Row onSelectChain={handleChainSwitch} targetChain={SupportedChainId.FANTOM_TESTNET} />
+            <Row
+              onSelectChain={handleChainSwitch}
+              currentReceiverChainId={receiverChainId}
+              targetChain={SupportedChainId.MAINNET}
+            />
+            <Row
+              onSelectChain={handleChainSwitch}
+              currentReceiverChainId={receiverChainId}
+              targetChain={SupportedChainId.GOERLI}
+            />
+            <Row
+              onSelectChain={handleChainSwitch}
+              currentReceiverChainId={receiverChainId}
+              targetChain={SupportedChainId.RINKEBY}
+            />
+            <Row
+              onSelectChain={handleChainSwitch}
+              currentReceiverChainId={receiverChainId}
+              targetChain={SupportedChainId.POLYGON}
+            />
+            <Row
+              onSelectChain={handleChainSwitch}
+              currentReceiverChainId={receiverChainId}
+              targetChain={SupportedChainId.POLYGON_MUMBAI}
+            />
+            <Row
+              onSelectChain={handleChainSwitch}
+              currentReceiverChainId={receiverChainId}
+              targetChain={SupportedChainId.OPTIMISM}
+            />
+            <Row
+              onSelectChain={handleChainSwitch}
+              currentReceiverChainId={receiverChainId}
+              targetChain={SupportedChainId.ARBITRUM_ONE}
+            />
+            <Row
+              onSelectChain={handleChainSwitch}
+              currentReceiverChainId={receiverChainId}
+              targetChain={SupportedChainId.FANTOM_TESTNET}
+            />
           </FlyoutMenuContents>
         </FlyoutMenu>
       )}

@@ -14,6 +14,34 @@ export enum TradeState {
 // from https://github.com/Uniswap/routing-api/blob/main/lib/handlers/schema.ts
 
 export type TokenInRoute = Pick<Token, 'address' | 'chainId' | 'symbol' | 'decimals'>
+export type TokenInRoute1 = Pick<Token, 'address' | 'symbol' | 'name'>
+export type ChainInRoute = {
+  chainId: string
+  name: string
+  slug: string
+}
+export type SwingRoute = {
+  destinationTxFee: string
+  bridgeFee: string
+  duration: string
+  gas: string
+  quote: string
+  route: Array<SwingBridge>
+}
+
+export type TransactionSwap = {
+  data: string
+  to: string
+  from: string
+  txId: string
+}
+
+export type SwingBridge = {
+  bridge: string
+  bridgeTokenAddress: string
+  name: string
+  part: number
+}
 
 export type V3PoolInRoute = {
   type: 'v3-pool'
@@ -66,6 +94,23 @@ export interface GetQuoteResult {
   quoteGasAdjustedDecimals: string
   route: Array<V3PoolInRoute[] | V2PoolInRoute[]>
   routeString: string
+}
+
+export interface GetSwingQuoteResult {
+  fromToken: TokenInRoute1
+  toToken: TokenInRoute1
+  fromChain: ChainInRoute
+  toChain: ChainInRoute
+  routes: Array<SwingRoute>
+}
+
+export interface GetSwingSwapResult {
+  tx: TransactionSwap
+  fromToken: TokenInRoute1
+  toToken: TokenInRoute1
+  fromChain: ChainInRoute
+  toChain: ChainInRoute
+  route: Array<SwingBridge>
 }
 
 export class InterfaceTrade<
