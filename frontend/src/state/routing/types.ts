@@ -97,6 +97,15 @@ export interface GetSwingQuoteResult {
   routes: Array<SwingRoute>
 }
 
+export interface GetSwingSwapResult {
+  // tx: TransactionSwap
+  fromToken: TokenInRoute1
+  toToken: TokenInRoute1
+  fromChain: ChainInRoute
+  toChain: ChainInRoute
+  route: Array<SwingBridge>
+}
+
 export class InterfaceTrade<
   TInput extends Currency,
   TOutput extends Currency,

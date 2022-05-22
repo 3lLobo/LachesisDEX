@@ -72,4 +72,74 @@ export const routingSwingApi = createApi({
   }),
 })
 
+export const swapSwingApi = createApi({
+  reducerPath: 'swapSwingApi',
+  baseQuery: fetchBaseQuery({
+    baseUrl: 'https://swap.dev.swing.xyz/v0/transfer/',
+  }),
+  endpoints: (build) => ({
+    swingSwap: build.query<
+      GetSwingQuoteResult,
+      {
+        tokenAmount: string
+        fromChain: string
+        fromChainId: number
+        fromTokenAddress: string
+        fromUserAddress: string
+        toChain: string
+        toChainId: number
+        tokenSymbol: string | undefined
+        toTokenAddress: string
+        toTokenSymbol: string | undefined
+        toUserAddress: string | undefined
+      }
+    >({
+      async queryFn(args, _api, _extraOptions, fetch) {
+        const {
+          tokenAmount,
+          fromChain,
+          fromChainId,
+          fromTokenAddress,
+          fromUserAddress,
+          toChain,
+          toChainId,
+          tokenSymbol,
+          toTokenAddress,
+          toTokenSymbol,
+          toUserAddress,
+        } = args
+
+        let result
+
+        try {
+          const query = qs.stringify({
+            tokenAmount,
+            fromChain,
+            fromChainId,
+            fromTokenAddress,
+            fromUserAddress,
+            toChain,
+            toChainId,
+            tokenSymbol,
+            toTokenAddress,
+            toTokenSymbol,
+            toUserAddress,
+          })
+          result = await fetch(`quote?${query}`)
+
+          return { data: result.data as GetSwingQuoteResult }
+        } catch (e) {
+          // TODO: fall back to client-side quoter when auto router fails.
+          return { error: e as FetchBaseQueryError }
+        }
+      },
+      keepUnusedDataFor: ms`10s`,
+      extraOptions: {
+        maxRetries: 0,
+      },
+    }),
+  }),
+})
+
 export const { useSwingGetQuoteQuery } = routingSwingApi
+export const { useSwingSwapQuery } = swapSwingApi

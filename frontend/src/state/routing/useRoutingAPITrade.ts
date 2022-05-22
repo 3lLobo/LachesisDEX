@@ -121,6 +121,7 @@ export function useRoutingAPITrade<TTradeType extends TradeType>(
     //     trade,
     //   }
     // } catch (e) {
+    console.log('>>>>>>>>>>>>>>>>>>>>>>>>>><')
     return { state: TradeState.INVALID, trade: undefined }
     //}
   }, [

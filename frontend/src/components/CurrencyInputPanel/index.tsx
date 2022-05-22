@@ -176,6 +176,7 @@ interface CurrencyInputPanelProps {
   renderBalance?: (amount: CurrencyAmount<Currency>) => ReactNode
   locked?: boolean
   loading?: boolean
+  chainId?: number | undefined
 }
 
 export default function CurrencyInputPanel({
@@ -198,6 +199,7 @@ export default function CurrencyInputPanel({
   hideInput = false,
   locked = false,
   loading = false,
+  chainId,
   ...rest
 }: CurrencyInputPanelProps) {
   const [modalOpen, setModalOpen] = useState(false)
@@ -309,6 +311,7 @@ export default function CurrencyInputPanel({
       {onCurrencySelect && (
         <CurrencySearchModal
           isOpen={modalOpen}
+          chainId={chainId}
           onDismiss={handleDismissSearch}
           onCurrencySelect={onCurrencySelect}
           selectedCurrency={currency}
