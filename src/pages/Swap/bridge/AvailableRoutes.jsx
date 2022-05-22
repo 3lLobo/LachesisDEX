@@ -76,7 +76,7 @@ export default function AvailableRoutes(props) {
           <div>
             <ion-icon name="alert-circle-outline" />
           </div>
-          <div>No routes available at this time</div>
+          <div>SWING routes availabe</div>
         </div>
       </div>
       {routes

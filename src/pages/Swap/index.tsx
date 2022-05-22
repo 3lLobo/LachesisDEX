@@ -697,7 +697,7 @@ export default function Swap({ history }: RouteComponentProps) {
               {isExpertMode && swapErrorMessage ? <SwapCallbackError error={swapErrorMessage} /> : null}
             </div>
           </AutoColumn>
-          <MockAvailableRoutes />
+          { (chainId !== receiverChainId) &&<MockAvailableRoutes /> }
         </Wrapper>
       </AppBody>
       <AlertWrapper>
