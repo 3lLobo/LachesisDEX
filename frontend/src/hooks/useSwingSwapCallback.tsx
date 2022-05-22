@@ -5,6 +5,7 @@ import { SwapCallbackState } from 'lib/hooks/swap/useSwapCallback'
 import { useSwingSwapCallback as useLibSwapCallBack } from 'lib/hooks/swap/useSwingSwapCallback'
 import tryParseCurrencyAmount from 'lib/utils/tryParseCurrencyAmount'
 import { ReactNode, useMemo } from 'react'
+import { TransactionSwap } from 'state/routing/types'
 import { Field } from 'state/swap/actions'
 import { useSwapState } from 'state/swap/hooks'
 
@@ -25,7 +26,7 @@ export function useSwingSwapCallback(
   allowedSlippage: Percent, // in bips
   recipientAddressOrName: string | null, // the ENS name or address of the recipient of the trade, or null if swap should be returned to sender
   signatureData: SignatureData | undefined | null
-): { state: SwapCallbackState; callback: null | (() => Promise<string>); error: ReactNode | null } {
+): { state: SwapCallbackState; callback: null | (() => Promise<TransactionSwap | undefined>); error: ReactNode | null } {
   const {
     independentField,
     typedValue,
@@ -73,36 +74,18 @@ export function useSwingSwapCallback(
   })
 
   const callback = useMemo(() => {
-    if (!libCallback || !trade) {
+    if (!libCallback) {
       return null
     }
     return () =>
       libCallback().then((response) => {
-        addTransaction(
-          response,
-          trade.tradeType === TradeType.EXACT_INPUT
-            ? {
-                type: TransactionType.SWAP,
-                tradeType: TradeType.EXACT_INPUT,
-                inputCurrencyId: currencyId(trade.inputAmount.currency),
-                inputCurrencyAmountRaw: trade.inputAmount.quotient.toString(),
-                expectedOutputCurrencyAmountRaw: trade.outputAmount.quotient.toString(),
-                outputCurrencyId: currencyId(trade.outputAmount.currency),
-                minimumOutputCurrencyAmountRaw: trade.minimumAmountOut(allowedSlippage).quotient.toString(),
-              }
-            : {
-                type: TransactionType.SWAP,
-                tradeType: TradeType.EXACT_OUTPUT,
-                inputCurrencyId: currencyId(trade.inputAmount.currency),
-                maximumInputCurrencyAmountRaw: trade.maximumAmountIn(allowedSlippage).quotient.toString(),
-                outputCurrencyId: currencyId(trade.outputAmount.currency),
-                outputCurrencyAmountRaw: trade.outputAmount.quotient.toString(),
-                expectedInputCurrencyAmountRaw: trade.inputAmount.quotient.toString(),
-              }
-        )
-        return response.hash
+        if(!response)
+        {
+          return undefined
+        }
+        return response.tx
       })
-  }, [addTransaction, allowedSlippage, libCallback, trade])
+  }, [addTransaction, allowedSlippage, trade])
 
   return {
     state,

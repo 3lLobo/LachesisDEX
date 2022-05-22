@@ -15,7 +15,7 @@ import { ReactNode, useMemo } from 'react'
 
 import useSendSwapTransaction from './useSendSwapTransaction'
 import { useSwingSwapQuery } from 'state/routing/sliceSwing'
-import { GetSwingQuoteResult } from 'state/routing/types'
+import { GetSwingQuoteResult, GetSwingSwapResult } from 'state/routing/types'
 
 export enum SwapCallbackState {
   INVALID,
@@ -23,9 +23,9 @@ export enum SwapCallbackState {
   VALID,
 }
 
-interface UseSwapCallbackReturns {
+interface UseSwingSwapCallbackReturns {
   state: SwapCallbackState
-  callback?: () => Promise<TransactionResponse>
+  callback?: () => Promise<GetSwingSwapResult | undefined>
   error?: ReactNode
 }
 interface UseSwingSwapCallbackArgs {
@@ -52,7 +52,7 @@ export function useSwingSwapCallback({
   amount,
   amountSpecified,
   otherCurrency,
-}: UseSwingSwapCallbackArgs): UseSwapCallbackReturns {
+}: UseSwingSwapCallbackArgs): UseSwingSwapCallbackReturns {
   const [currencyIn, currencyOut]: [Currency | undefined, Currency | undefined] = useMemo(
     () => [amountSpecified?.currency, otherCurrency],
     [amountSpecified, otherCurrency]
@@ -67,37 +67,39 @@ export function useSwingSwapCallback({
     toUserAddress: undefined,
   })
 
-  const { isLoading, isError, data, currentData } = useSwingSwapQuery(swapCalls ?? skipToken, {
-    pollingInterval: ms`15s`,
-    refetchOnFocus: true,
-  })
+  const Callback = function() : GetSwingSwapResult | undefined {
+    const { isLoading, isError, data, currentData } = useSwingSwapQuery(swapCalls ?? skipToken, {
+      pollingInterval: ms`15s`,
+      refetchOnFocus: true,
+    })
+    const swapResult: GetSwingSwapResult | undefined = data
+    return swapResult
+  }
 
   // const quoteResult: GetSwingQuoteResult | undefined = useIsValidBlock(Number(data?.blockNumber) || 0)
   //   ? data
   //   : undefined
-  const quoteResult: GetSwingQuoteResult | undefined = data
-  console.log('ZZZZZZZZZZZZ', data)
 
-  const { callback } = useSendSwapTransaction(account, chainId, library, trade, swapCalls)
+  // const { callback } = useSendSwapTransaction(account, chainId, library, trade, swapCalls)
 
-  const { address: recipientAddress } = useENS(recipientAddressOrName)
-  const recipient = recipientAddressOrName === null ? account : recipientAddress
+  // const { address: recipientAddress } = useENS(recipientAddressOrName)
+  // const recipient = recipientAddressOrName === null ? account : recipientAddress
 
   return useMemo(() => {
-    if (!trade || !library || !account || !chainId || !callback) {
-      return { state: SwapCallbackState.INVALID, error: <Trans>Missing dependencies</Trans> }
-    }
-    if (!recipient) {
-      if (recipientAddressOrName !== null) {
-        return { state: SwapCallbackState.INVALID, error: <Trans>Invalid recipient</Trans> }
-      } else {
-        return { state: SwapCallbackState.LOADING }
-      }
-    }
+    // if (!trade || !library || !account || !chainId || !callback) {
+    //   return { state: SwapCallbackState.INVALID, error: <Trans>Missing dependencies</Trans> }
+    // }
+    // if (!recipient) {
+    //   if (recipientAddressOrName !== null) {
+    //     return { state: SwapCallbackState.INVALID, error: <Trans>Invalid recipient</Trans> }
+    //   } else {
+    //     return { state: SwapCallbackState.LOADING }
+    //   }
+    // }
 
     return {
       state: SwapCallbackState.VALID,
-      callback: async () => callback(),
+      callback: async () => Callback(),
     }
-  }, [trade, library, account, chainId, callback, recipient, recipientAddressOrName])
+  }, [trade, library, account, chainId, recipientAddressOrName])
 }

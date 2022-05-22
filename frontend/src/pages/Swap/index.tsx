@@ -311,25 +311,26 @@ export default function Swap({ history }: RouteComponentProps) {
     // if (priceImpact && !confirmPriceImpactWithoutFee(priceImpact)) {
     //   return
     // }
-    setSwapState({ attemptingTxn: true, tradeToConfirm, showConfirm, swapErrorMessage: undefined, txHash: undefined })
+    //setSwapState({ attemptingTxn: true, tradeToConfirm, showConfirm, swapErrorMessage: undefined, txHash: undefined })
     swapCallback()
       .then((hash) => {
-        setSwapState({ attemptingTxn: false, tradeToConfirm, showConfirm, swapErrorMessage: undefined, txHash: hash })
-        ReactGA.event({
-          category: 'Swap',
-          action:
-            recipient === null
-              ? 'Swap w/o Send'
-              : (recipientAddress ?? recipient) === account
-              ? 'Swap w/o Send + recipient'
-              : 'Swap w/ Send',
-          label: [
-            approvalOptimizedTradeString,
-            approvalOptimizedTrade?.inputAmount?.currency?.symbol,
-            approvalOptimizedTrade?.outputAmount?.currency?.symbol,
-            'MH',
-          ].join('/'),
-        })
+        console.log('UUUUUUU', hash)
+        // setSwapState({ attemptingTxn: false, tradeToConfirm, showConfirm, swapErrorMessage: undefined, txHash: hash })
+        // ReactGA.event({
+        //   category: 'Swap',
+        //   action:
+        //     recipient === null
+        //       ? 'Swap w/o Send'
+        //       : (recipientAddress ?? recipient) === account
+        //       ? 'Swap w/o Send + recipient'
+        //       : 'Swap w/ Send',
+        //   label: [
+        //     approvalOptimizedTradeString,
+        //     approvalOptimizedTrade?.inputAmount?.currency?.symbol,
+        //     approvalOptimizedTrade?.outputAmount?.currency?.symbol,
+        //     'MH',
+        //   ].join('/'),
+        // })
       })
       .catch((error) => {
         setSwapState({
@@ -587,9 +588,9 @@ export default function Swap({ history }: RouteComponentProps) {
                     </ButtonConfirmed>
                     <ButtonError
                       onClick={() => {
-                        if (isExpertMode) {
+                        //if (isExpertMode) {
                           handleSwap()
-                        } else {
+                        /*} else {
                           setSwapState({
                             tradeToConfirm: trade,
                             attemptingTxn: false,
@@ -597,12 +598,12 @@ export default function Swap({ history }: RouteComponentProps) {
                             showConfirm: true,
                             txHash: undefined,
                           })
-                        }
+                        }*/
                       }}
                       width="100%"
                       id="swap-button"
                       disabled={false}
-                      error={isValid && priceImpactSeverity > 2}
+                      error={false}
                     >
                       <Text fontSize={16} fontWeight={500}>
                         <Trans>Swap</Trans>
@@ -613,9 +614,9 @@ export default function Swap({ history }: RouteComponentProps) {
               ) : (
                 <ButtonError
                   onClick={() => {
-                    if (isExpertMode) {
+                    //if (isExpertMode) {
                       handleSwap()
-                    } else {
+                    /*} else {
                       setSwapState({
                         tradeToConfirm: trade,
                         attemptingTxn: false,
@@ -623,11 +624,11 @@ export default function Swap({ history }: RouteComponentProps) {
                         showConfirm: true,
                         txHash: undefined,
                       })
-                    }
+                    }*/
                   }}
                   id="swap-button"
                   disabled={false}
-                  error={isValid && priceImpactSeverity > 2 && !swapCallbackError}
+                  error={false}
                 >
                   <Text fontSize={20} fontWeight={500}>
                     <Trans>Swap</Trans>
