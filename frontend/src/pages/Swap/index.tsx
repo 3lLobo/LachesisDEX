@@ -58,6 +58,7 @@ import { maxAmountSpend } from '../../utils/maxAmountSpend'
 import { warningSeverity } from '../../utils/prices'
 import { supportedChainId } from '../../utils/supportedChainId'
 import AppBody from '../AppBody'
+import MockAvailableRoutes from './mockRoutesWidget'
 import ReceiverNetworkSelector from './ReceiverNetworkSelector'
 
 const AlertWrapper = styled.div`
@@ -636,6 +637,7 @@ export default function Swap({ history }: RouteComponentProps) {
               {isExpertMode && swapErrorMessage ? <SwapCallbackError error={swapErrorMessage} /> : null}
             </div>
           </AutoColumn>
+          <MockAvailableRoutes />
         </Wrapper>
       </AppBody>
       <AlertWrapper>
