@@ -1,5 +1,5 @@
 import { createApi, fetchBaseQuery, FetchBaseQueryError } from '@reduxjs/toolkit/query/react'
-import { GetSwingQuoteResult } from './types'
+import { GetSwingQuoteResult, GetSwingSwapResult } from './types'
 import ms from 'ms.macro'
 import qs from 'qs'
 
@@ -75,11 +75,11 @@ export const routingSwingApi = createApi({
 export const swapSwingApi = createApi({
   reducerPath: 'swapSwingApi',
   baseQuery: fetchBaseQuery({
-    baseUrl: 'https://swap.dev.swing.xyz/v0/transfer/',
+    baseUrl: 'https://swap.dev.swing.xyz/v0/transfer/send',
   }),
   endpoints: (build) => ({
     swingSwap: build.query<
-      GetSwingQuoteResult,
+      GetSwingSwapResult,
       {
         tokenAmount: string
         fromChain: string
@@ -125,9 +125,9 @@ export const swapSwingApi = createApi({
             toTokenSymbol,
             toUserAddress,
           })
-          result = await fetch(`quote?${query}`)
+          result = await fetch(query)
 
-          return { data: result.data as GetSwingQuoteResult }
+          return { data: result.data as GetSwingSwapResult }
         } catch (e) {
           // TODO: fall back to client-side quoter when auto router fails.
           return { error: e as FetchBaseQueryError }

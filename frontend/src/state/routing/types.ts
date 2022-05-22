@@ -29,6 +29,13 @@ export type SwingRoute = {
   route: Array<SwingBridge>
 }
 
+export type TransactionSwap = {
+  data: string
+  to: string
+  from: string
+  txId: string
+}
+
 export type SwingBridge = {
   bridge: string
   bridgeTokenAddress: string
@@ -98,7 +105,7 @@ export interface GetSwingQuoteResult {
 }
 
 export interface GetSwingSwapResult {
-  // tx: TransactionSwap
+  tx: TransactionSwap
   fromToken: TokenInRoute1
   toToken: TokenInRoute1
   fromChain: ChainInRoute
