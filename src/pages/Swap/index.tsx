@@ -60,6 +60,7 @@ import { supportedChainId } from '../../utils/supportedChainId'
 import AppBody from '../AppBody'
 import MockAvailableRoutes from './mockRoutesWidget'
 import ReceiverNetworkSelector from './ReceiverNetworkSelector'
+import { TransactionSwap } from 'state/routing/types'
 
 const AlertWrapper = styled.div`
   max-width: 460px;
@@ -193,7 +194,7 @@ export default function Swap({ history }: RouteComponentProps) {
     [onUserInput]
   )
 
-  const [receiverChainId, setReceiverChainId] = useState<number | undefined>(undefined)
+  const [receiverChainId, setReceiverChainId] = useState<number | undefined>(chainId)
   const chainIdChanged = useCallback(
     (value: number) => {
       setReceiverChainId(value)
@@ -253,25 +254,28 @@ export default function Swap({ history }: RouteComponentProps) {
     gatherPermitSignature,
   } = useERC20PermitFromTrade(approvalOptimizedTrade, allowedSlippage, transactionDeadline)
 
-  const handleApprove = useCallback(async () => {
-    if (signatureState === UseERC20PermitState.NOT_SIGNED && gatherPermitSignature) {
-      try {
-        await gatherPermitSignature()
-      } catch (error) {
-        // try to approve if gatherPermitSignature failed for any reason other than the user rejecting it
-        if (error?.code !== 4001) {
-          await approveCallback()
+  const handleApprove = useCallback(() => {
+    async function asyncApprove() {
+      if (signatureState === UseERC20PermitState.NOT_SIGNED && gatherPermitSignature) {
+        try {
+          await gatherPermitSignature()
+        } catch (error) {
+          // try to approve if gatherPermitSignature failed for any reason other than the user rejecting it
+          if (error?.code !== 4001) {
+            await approveCallback()
+          }
         }
+      } else {
+        await approveCallback()
+  
+        ReactGA.event({
+          category: 'Swap',
+          action: 'Approve',
+          label: [approvalOptimizedTradeString, approvalOptimizedTrade?.inputAmount?.currency.symbol].join('/'),
+        })
       }
-    } else {
-      await approveCallback()
-
-      ReactGA.event({
-        category: 'Swap',
-        action: 'Approve',
-        label: [approvalOptimizedTradeString, approvalOptimizedTrade?.inputAmount?.currency.symbol].join('/'),
-      })
     }
+    asyncApprove()
   }, [
     signatureState,
     gatherPermitSignature,
@@ -308,29 +312,84 @@ export default function Swap({ history }: RouteComponentProps) {
     if (!swapCallback) {
       return
     }
+    if (priceImpact && !confirmPriceImpactWithoutFee(priceImpact)) {
+      return
+    }
+    setSwapState({ attemptingTxn: true, tradeToConfirm, showConfirm, swapErrorMessage: undefined, txHash: undefined })
+    swapCallback()
+      .then((hash) => {
+        setSwapState({ attemptingTxn: false, tradeToConfirm, showConfirm, swapErrorMessage: undefined, txHash: hash ? hash.toString() : undefined })
+        ReactGA.event({
+          category: 'Swap',
+          action: 'transaction hash',
+          label: hash ? hash.toString() : undefined,
+        })
+        ReactGA.event({
+          category: 'Swap',
+          action:
+            recipient === null
+              ? 'Swap w/o Send'
+              : (recipientAddress ?? recipient) === account
+              ? 'Swap w/o Send + recipient'
+              : 'Swap w/ Send',
+          label: [
+            approvalOptimizedTradeString,
+            approvalOptimizedTrade?.inputAmount?.currency?.symbol,
+            approvalOptimizedTrade?.outputAmount?.currency?.symbol,
+            'MH',
+          ].join('/'),
+        })
+      })
+      .catch((error) => {
+        setSwapState({
+          attemptingTxn: false,
+          tradeToConfirm,
+          showConfirm,
+          swapErrorMessage: error.message,
+          txHash: undefined,
+        })
+      })
+  }, [
+    swapCallback,
+    priceImpact,
+    tradeToConfirm,
+    showConfirm,
+    recipient,
+    recipientAddress,
+    account,
+    approvalOptimizedTradeString,
+    approvalOptimizedTrade?.inputAmount?.currency?.symbol,
+    approvalOptimizedTrade?.outputAmount?.currency?.symbol,
+  ])
+
+  const handleSwingSwap = useCallback(() => {
+    console.log("🚀 ~ file: index.tsx ~ line 593 ~ Swap ~ (chainId !== receiverChainId)", (chainId !== receiverChainId))
+    if (!swapCallback) {
+      return
+    }
     // if (priceImpact && !confirmPriceImpactWithoutFee(priceImpact)) {
     //   return
     // }
-    //setSwapState({ attemptingTxn: true, tradeToConfirm, showConfirm, swapErrorMessage: undefined, txHash: undefined })
+    setSwapState({ attemptingTxn: true, tradeToConfirm, showConfirm, swapErrorMessage: undefined, txHash: undefined })
     swapCallback()
       .then((hash) => {
         console.log('UUUUUUU', hash)
-        // setSwapState({ attemptingTxn: false, tradeToConfirm, showConfirm, swapErrorMessage: undefined, txHash: hash })
-        // ReactGA.event({
-        //   category: 'Swap',
-        //   action:
-        //     recipient === null
-        //       ? 'Swap w/o Send'
-        //       : (recipientAddress ?? recipient) === account
-        //       ? 'Swap w/o Send + recipient'
-        //       : 'Swap w/ Send',
-        //   label: [
-        //     approvalOptimizedTradeString,
-        //     approvalOptimizedTrade?.inputAmount?.currency?.symbol,
-        //     approvalOptimizedTrade?.outputAmount?.currency?.symbol,
-        //     'MH',
-        //   ].join('/'),
-        // })
+        setSwapState({ attemptingTxn: false, tradeToConfirm, showConfirm, swapErrorMessage: undefined, txHash: hash ? hash.toString() : undefined });
+        ReactGA.event({
+          category: 'Swap',
+          action:
+            recipient === null
+              ? 'Swap w/o Send'
+              : (recipientAddress ?? recipient) === account
+              ? 'Swap w/o Send + recipient'
+              : 'Swap w/ Send',
+          label: [
+            approvalOptimizedTradeString,
+            approvalOptimizedTrade?.inputAmount?.currency?.symbol,
+            approvalOptimizedTrade?.outputAmount?.currency?.symbol,
+            'MH',
+          ].join('/'),
+        })
       })
       .catch((error) => {
         setSwapState({
@@ -588,9 +647,9 @@ export default function Swap({ history }: RouteComponentProps) {
                     </ButtonConfirmed>
                     <ButtonError
                       onClick={() => {
-                        //if (isExpertMode) {
-                          handleSwap()
-                        /*} else {
+                        if (chainId !== receiverChainId) {
+                          handleSwingSwap()
+                        } else {
                           setSwapState({
                             tradeToConfirm: trade,
                             attemptingTxn: false,
@@ -598,7 +657,7 @@ export default function Swap({ history }: RouteComponentProps) {
                             showConfirm: true,
                             txHash: undefined,
                           })
-                        }*/
+                        }
                       }}
                       width="100%"
                       id="swap-button"
@@ -614,9 +673,9 @@ export default function Swap({ history }: RouteComponentProps) {
               ) : (
                 <ButtonError
                   onClick={() => {
-                    //if (isExpertMode) {
-                      handleSwap()
-                    /*} else {
+                    if (chainId !== receiverChainId) {
+                      handleSwingSwap()
+                    } else {
                       setSwapState({
                         tradeToConfirm: trade,
                         attemptingTxn: false,
@@ -624,7 +683,7 @@ export default function Swap({ history }: RouteComponentProps) {
                         showConfirm: true,
                         txHash: undefined,
                       })
-                    }*/
+                    }
                   }}
                   id="swap-button"
                   disabled={false}

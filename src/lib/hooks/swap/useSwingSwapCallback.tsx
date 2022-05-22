@@ -67,7 +67,7 @@ export function useSwingSwapCallback({
     toUserAddress: undefined,
   })
 
-  const Callback = function() : GetSwingSwapResult | undefined {
+  const Callback = function (): GetSwingSwapResult | undefined {
     const { isLoading, isError, data, currentData } = useSwingSwapQuery(swapCalls ?? skipToken, {
       pollingInterval: ms`15s`,
       refetchOnFocus: true,

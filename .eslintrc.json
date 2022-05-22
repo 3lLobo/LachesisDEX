@@ -28,6 +28,7 @@
       "@typescript-eslint/ban-ts-comment": "off",
       "@typescript-eslint/ban-ts-ignore": "off",
       "@typescript-eslint/explicit-module-boundary-types": "off",
+      "react-hooks/rules-of-hooks": "error",
       "react/react-in-jsx-scope": "off",
       "react/prop-types": 0,
       "no-restricted-imports": [

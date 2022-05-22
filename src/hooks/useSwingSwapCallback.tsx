@@ -26,7 +26,11 @@ export function useSwingSwapCallback(
   allowedSlippage: Percent, // in bips
   recipientAddressOrName: string | null, // the ENS name or address of the recipient of the trade, or null if swap should be returned to sender
   signatureData: SignatureData | undefined | null
-): { state: SwapCallbackState; callback: null | (() => Promise<TransactionSwap | undefined>); error: ReactNode | null } {
+): {
+  state: SwapCallbackState
+  callback: null | (() => Promise<TransactionSwap | undefined>)
+  error: ReactNode | null
+} {
   const {
     independentField,
     typedValue,
@@ -79,8 +83,7 @@ export function useSwingSwapCallback(
     }
     return () =>
       libCallback().then((response) => {
-        if(!response)
-        {
+        if (!response) {
           return undefined
         }
         return response.tx

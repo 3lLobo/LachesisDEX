@@ -257,7 +257,7 @@ export default function ReceiverNetworkSelector({ chainIdChanged }: ReceiverNetw
 
   //let info = chainId ? CHAIN_INFO[chainId] : undefined
   const [info, setInfo] = useState(chainId ? CHAIN_INFO[chainId] : undefined)
-  const [receiverChaindId, setReceiverChaindId] = useState(chainId ? chainId : undefined)
+  const [receiverChainId, setReceiverChainId] = useState(chainId ? chainId : undefined)
 
   const dispatch = useAppDispatch()
 
@@ -271,7 +271,7 @@ export default function ReceiverNetworkSelector({ chainIdChanged }: ReceiverNetw
       //   dispatch(addPopup({ content: { failedSwitchNetwork: targetChain }, key: `failed-network-switch` }))
       // }
       setInfo(targetChain ? CHAIN_INFO[targetChain] : undefined)
-      setReceiverChaindId(targetChain)
+      setReceiverChainId(targetChain)
       chainIdChanged(targetChain)
     },
     [dispatch, library, toggle, chainId]
@@ -287,9 +287,9 @@ export default function ReceiverNetworkSelector({ chainIdChanged }: ReceiverNetw
     } else if (urlChainId && urlChainId !== chainId) {
       handleChainSwitch(urlChainId, true)
     }
-    if (!info || !receiverChaindId) {
+    if (!info || !receiverChainId) {
       setInfo(chainId ? CHAIN_INFO[chainId] : undefined)
-      setReceiverChaindId(chainId ? chainId : undefined)
+      setReceiverChainId(chainId ? chainId : undefined)
       chainIdChanged(chainId)
     }
   }, [chainId, urlChainId, prevChainId, handleChainSwitch])
@@ -297,9 +297,9 @@ export default function ReceiverNetworkSelector({ chainIdChanged }: ReceiverNetw
   // set chain parameter on initial load if not there
   useEffect(() => {
     if (chainId && !urlChainId) {
-      if (!info || !receiverChaindId) {
+      if (!info || !receiverChainId) {
         setInfo(chainId ? CHAIN_INFO[chainId] : undefined)
-        setReceiverChaindId(chainId ? chainId : undefined)
+        setReceiverChainId(chainId ? chainId : undefined)
         chainIdChanged(chainId)
       }
     }
@@ -324,42 +324,42 @@ export default function ReceiverNetworkSelector({ chainIdChanged }: ReceiverNetw
             </FlyoutHeader>
             <Row
               onSelectChain={handleChainSwitch}
-              currentReceiverChainId={receiverChaindId}
+              currentReceiverChainId={receiverChainId}
               targetChain={SupportedChainId.MAINNET}
             />
             <Row
               onSelectChain={handleChainSwitch}
-              currentReceiverChainId={receiverChaindId}
+              currentReceiverChainId={receiverChainId}
               targetChain={SupportedChainId.GOERLI}
             />
             <Row
               onSelectChain={handleChainSwitch}
-              currentReceiverChainId={receiverChaindId}
+              currentReceiverChainId={receiverChainId}
               targetChain={SupportedChainId.RINKEBY}
             />
             <Row
               onSelectChain={handleChainSwitch}
-              currentReceiverChainId={receiverChaindId}
+              currentReceiverChainId={receiverChainId}
               targetChain={SupportedChainId.POLYGON}
             />
             <Row
               onSelectChain={handleChainSwitch}
-              currentReceiverChainId={receiverChaindId}
+              currentReceiverChainId={receiverChainId}
               targetChain={SupportedChainId.POLYGON_MUMBAI}
             />
             <Row
               onSelectChain={handleChainSwitch}
-              currentReceiverChainId={receiverChaindId}
+              currentReceiverChainId={receiverChainId}
               targetChain={SupportedChainId.OPTIMISM}
             />
             <Row
               onSelectChain={handleChainSwitch}
-              currentReceiverChainId={receiverChaindId}
+              currentReceiverChainId={receiverChainId}
               targetChain={SupportedChainId.ARBITRUM_ONE}
             />
             <Row
               onSelectChain={handleChainSwitch}
-              currentReceiverChainId={receiverChaindId}
+              currentReceiverChainId={receiverChainId}
               targetChain={SupportedChainId.FANTOM_TESTNET}
             />
           </FlyoutMenuContents>
