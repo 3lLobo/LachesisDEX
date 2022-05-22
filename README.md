@@ -63,3 +63,11 @@ Fantom testnet:
 [ETH-hooks](https://scaffold-eth.github.io/eth-hooks/)
 
 [TheGraph](https://thegraph.com/docs/en/developer/quick-start/)
+
+
+## Notes:
+
+Network: gloeri
+Token: USDC
+Add: 0x07865c6e87b9f70255377e024ace6630c1eaa37f
+
