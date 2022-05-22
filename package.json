@@ -2,7 +2,7 @@
   "name": "@uniswap/widgets",
   "version": "1.0.7",
   "description": "Uniswap Interface",
-  "homepage": ".",
+  "homepage": "https://lachesiswap.netlify.app/",
   "files": [
     "dist"
   ],
@@ -178,6 +178,7 @@
   },
   "license": "GPL-3.0-or-later",
   "dependencies": {
+    "@apollo/client": "^3.6.4",
     "@babel/runtime": "^7.17.0",
     "@fontsource/ibm-plex-mono": "^4.5.1",
     "@fontsource/inter": "^4.5.1",
