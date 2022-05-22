@@ -55,7 +55,7 @@ class D3Class {
     //       (link) => link.join()
     //     )
     //     .values()
-    // )    
+    // )
 
     const names = Array.from(new Set(data.flatMap((d) => [d.source, d.target]))).sort(d3.descending)
 
@@ -63,7 +63,7 @@ class D3Class {
       const index = new Map(names.map((name, i) => [name, i]))
       const matrix = Array.from(index, () => new Array(names.length).fill(0))
       for (const { source, target, value } of data) matrix[index.get(source)][index.get(target)] += value
-      const logMatrix = matrix.map((a) => a.map((v) => (v === 0) ? 0 : Math.log(v)))
+      const logMatrix = matrix.map((a) => a.map((v) => (v === 0 ? 0 : Math.log(v))))
       return logMatrix
     }
     const color = d3.scaleOrdinal(names, d3.quantize(d3.interpolateRainbow, names.length))
@@ -107,7 +107,6 @@ class D3Class {
       .attr('fill', (d) => color(names[d.index]))
       .attr('d', arc)
 
-
     group
       .append('text')
       .each((d) => (d.angle = (d.startAngle + d.endAngle) / 2))
@@ -123,32 +122,29 @@ class D3Class {
       .attr('text-anchor', (d) => (d.angle > Math.PI ? 'end' : null))
       .attr('fill', fontColor)
       .text((d) => names[d.index])
-      .on("mouseover", overed)
-      .on("mouseout", outed)
+      .on('mouseover', overed)
+      .on('mouseout', outed)
       .on('click', onDatapointClick)
 
     group.append('title').text(
       (d) => `${names[d.index]}
-      ${d3.sum(chords, c => (c.source.index === d.index) * expValue(c.source.value))} outgoing →
-      ${d3.sum(chords, c => (c.target.index === d.index) * expValue(c.source.value))} incoming ←`
+      ${d3.sum(chords, (c) => (c.source.index === d.index) * expValue(c.source.value))} outgoing →
+      ${d3.sum(chords, (c) => (c.target.index === d.index) * expValue(c.source.value))} incoming ←`
     )
     function expValue(val) {
-
-      return val===0 ? 0 : Math.round(Math.exp(val))
+      return val === 0 ? 0 : Math.round(Math.exp(val))
     }
 
     function popout(event, d) {
-      console.log(names[d.source.index] + ` value: ${d.source.value} to ${names[d.target.index]} value: ${d.target.value}`)
+      console.log(
+        names[d.source.index] + ` value: ${d.source.value} to ${names[d.target.index]} value: ${d.target.value}`
+      )
       console.log(d)
-      d3.select(this)
-        .attr('fill-opacity', 1)
-        .raise()
+      d3.select(this).attr('fill-opacity', 1).raise()
     }
 
     function popback(event, d) {
-      d3.select(this)
-        .attr('fill-opacity', .75)
-        .raise()
+      d3.select(this).attr('fill-opacity', 0.75).raise()
     }
 
     function overed(event, d) {
