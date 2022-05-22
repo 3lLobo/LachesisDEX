@@ -3,41 +3,41 @@ import { useState, useEffect, useRef } from 'react'
 import * as d3 from 'd3'
 import resflare from './flare.json'
 import d3class from './d3class'
-import { useQuery } from "@apollo/client"
+import { useQuery } from '@apollo/client'
 
 import { swapQuery } from '../../graphQL/queries'
 
 // let vis
 export default function D3Card() {
-
   const cardWidth = 800
   const [data, setData] = useState(null)
-  const { loading, error, data: gqlData } = useQuery(swapQuery,
-    {
-      variables: {
-        "first": 311,
-        "orderBy": "timestamp",
-        "where": {
-          "amountUSD_gt": 111
-        },
-        "orderDirection": "desc"
+  const {
+    loading,
+    error,
+    data: gqlData,
+  } = useQuery(swapQuery, {
+    variables: {
+      first: 311,
+      orderBy: 'timestamp',
+      where: {
+        amountUSD_gt: 111,
       },
-      notifyOnNetworkStatusChange: true,
-      pollInterval: 11000,
-      onCompleted: (d) => mutateGraphData(d),
-    }
-  )
-
+      orderDirection: 'desc',
+    },
+    notifyOnNetworkStatusChange: true,
+    pollInterval: 11000,
+    onCompleted: (d) => mutateGraphData(d),
+  })
 
   function mutateGraphData(graphData) {
     const newData = graphData.swaps.map((d) => {
       return {
-        'source': d.token0.symbol,
-        'target': d.token1.symbol,
-        'value': Math.round(d.amountUSD),
+        source: d.token0.symbol,
+        target: d.token1.symbol,
+        value: Math.round(d.amountUSD),
       }
     })
-    console.log("🚀 ~ file: d3component.js ~ line 39 ~ newData ~ newData", newData)
+    console.log('🚀 ~ file: d3component.js ~ line 39 ~ newData ~ newData', newData)
     setData(newData)
   }
 
@@ -90,7 +90,7 @@ export default function D3Card() {
           width: svgWidth,
           height: svgWidth,
           onDatapointClick: onClick,
-          fontColor: 'black',
+          fontColor: 'whitesmoke',
         }
         if (!vis) {
           setVis(() => new d3class(refElement.current, d3Props))
