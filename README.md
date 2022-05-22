@@ -25,13 +25,16 @@ Final: Lachesis's output can be used immediately. Transactions are confirmed wit
 # Interchain swaps using Bridge
 
 ```
-Swing API v0 enables cross-chain token transfers and token swaps through Multichain(Anyswap), Wormhole, Celer Bridge, deBridge, Hop Bridge, Hyphen bridge, Connext(NXTP), Rainbow bridge, Synapse . 
+Swing API v0 enables cross-chain token transfers and token swaps through Multichain(Anyswap), Wormhole,
+Celer Bridge, deBridge, Hop Bridge, Hyphen bridge, Connext(NXTP), Rainbow bridge, Synapse . 
 ```
 Thus , we use SWING API to find us the best & the most optimal bridge in terms of fees. Combined with Uniswap it would allow to swap to another chain and to use a shared interchain liquidity pool.
 
 # Data on Swaps & Liquidity 
 
-A chart which displays the newest swaps above a certain threshold on the mainnet. 
+A chart which displays the newest swaps above a certain threshold on the mainnet.
+![image](https://user-images.githubusercontent.com/70228821/169710275-d396cb31-5e75-4475-80b4-b5ea4e82bcff.png)
+
 
 # Roadmap
 
