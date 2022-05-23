@@ -1,6 +1,8 @@
-# Decentralized EXchange using Lachesis consensus algorithm
+# Decentralized Exchange using Lachesis consensus algorithm
 
 Submission project for HackTheMoney | ETHGlobal 2022
+
+![image](public/lachesis_banner.png)
 
 # About the app
 
