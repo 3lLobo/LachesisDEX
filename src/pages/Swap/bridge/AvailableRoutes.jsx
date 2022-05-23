@@ -1,4 +1,5 @@
 import React from 'react';
+import "./bridge.scss"
 // import Wallet from '../../../utils/wallet';
 import RouteItemWrapper from './RouteItemWrapper';
 

@@ -276,11 +276,11 @@ export default function Header() {
           <HolidayOrnament />
         </UniIcon>
       </Title>
-      <HeaderLinks>
+      {/* <HeaderLinks>
         <StyledNavLink id={`swap-nav-link`} to={'/swap'}>
           <Trans>Swap</Trans>
         </StyledNavLink>
-      </HeaderLinks>
+      </HeaderLinks> */}
 
       <HeaderControls>
         <HeaderElement>

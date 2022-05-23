@@ -14,6 +14,7 @@ import { skipToken } from '@reduxjs/toolkit/query/react'
 import { GetSwingQuoteResult, GetSwingSwapResult } from 'state/routing/types'
 import { SerializedError } from '@reduxjs/toolkit'
 import { FetchBaseQueryError } from '@reduxjs/toolkit/dist/query'
+import swingApi from '../lib/swingApi'
 
 import { useTransactionAdder } from '../state/transactions/hooks'
 import { TransactionType } from '../state/transactions/types'
@@ -24,21 +25,11 @@ import useENS from './useENS'
 import { SignatureData } from './useERC20Permit'
 import { AnyTrade } from './useSwapCallArguments'
 import useTransactionDeadline from './useTransactionDeadline'
+import { useState } from 'react'
 
 // returns a function that will execute a swap, if the parameters are all valid
 // and the user has approved the slippage adjusted input amount for the trade
-export function useSwingSwapCallback(
-  trade: AnyTrade | undefined, // trade to execute, required
-  allowedSlippage: Percent, // in bips
-  recipientAddressOrName: string | null, // the ENS name or address of the recipient of the trade, or null if swap should be returned to sender
-  signatureData: SignatureData | undefined | null
-): {
-  isLoading: boolean
-  isError: boolean
-  data: GetSwingSwapResult | undefined
-  currentData: GetSwingSwapResult | undefined
-  error: SerializedError | FetchBaseQueryError | undefined
-} {
+export function useSwingSwapCallback(recipientAddressOrName: string | null): Promise<any> | undefined {
   const {
     independentField,
     typedValue,
@@ -61,6 +52,8 @@ export function useSwingSwapCallback(
     200
   )
 
+  console.log('🚀 ~ file: useSwingSwapCallback.tsx ~ line 56 ~ parsedAmount', parsedAmount)
+
   const { account, chainId, library } = useActiveWeb3React()
 
   const deadline = useTransactionDeadline()
@@ -70,6 +63,8 @@ export function useSwingSwapCallback(
   const { address: recipientAddress } = useENS(recipientAddressOrName)
   const recipient1 = recipientAddressOrName === null ? account : recipientAddress
 
+  const [swingRoutes, setSwingRoutes] = useState<Promise<any> | undefined>()
+
   const swapCalls = useSwingSwapCallArguments({
     tokenIn: debouncedAmount?.currency,
     tokenOut: debouncedOtherCurrency,
@@ -78,10 +73,20 @@ export function useSwingSwapCallback(
     toUserAddress: account ?? undefined,
   })
 
-  const { isLoading, isError, data, currentData, error } = useSwingSwapQuery(swapCalls ?? skipToken, {
-    pollingInterval: 15000,
-    refetchOnFocus: true,
-  })
+  console.log('🚀 ~ file: useSwingSwapCallback.tsx ~ line 81 ~ swapCalls', swapCalls)
 
-  return { isLoading, isError, data, currentData, error }
+  // const { isLoading, isError, data, currentData, error } = useSwingSwapQuery(swapCalls ?? skipToken, {
+  //   pollingInterval: 15000,
+  //   refetchOnFocus: true,
+  // })
+
+  const swingQuote = swingApi.getQuote(
+    swapCalls?.fromChainId,
+    debouncedAmount?.currency.symbol,
+    debouncedOtherCurrency,
+    swapCalls?.tokenAmount
+  )
+  setSwingRoutes(swingQuote)
+
+  return swingRoutes
 }

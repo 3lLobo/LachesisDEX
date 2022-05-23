@@ -111,7 +111,7 @@ $bridge-widget-anim-timing: 300ms;
 
   .currency-text {
     font-family: monospace;
-    color: $link;
+    color: white;
     font-size: 22px;
     text-align: right;
     overflow: hidden;
@@ -212,7 +212,7 @@ $bridge-widget-anim-timing: 300ms;
       cursor: pointer;
 
       i {
-        color: $primary;
+        color: white;
       }
 
       &:hover {
@@ -271,18 +271,18 @@ $bridge-widget-anim-timing: 300ms;
       &:hover, &:focus {
         transform: scale(1.05);
         box-shadow: 0 0px 10px 0 var(--input-box-shadow);
-        border: 1px solid $link;
+        border: 1px solid white;
       }
 
       &.is-danger {
-        color: $danger;
-        border-color: $danger;
+        color: red;
+        border-color: red;
       }
     }
 
     .warning-funds {
       font-size: 12px;
-      color: $danger;
+      color: red;
       position: absolute;
       top: 57px;
       right: 8px;
@@ -352,7 +352,7 @@ $bridge-widget-anim-timing: 300ms;
 
     .is-loading {
       input {
-        color: $info-light;
+        color: blue;
       }
 
       &:after {
@@ -498,12 +498,12 @@ $bridge-widget-anim-timing: 300ms;
     .icon {
       font-size: 65px;
       width: 75px;
-      color: $primary;
+      color: white;
     }
 
     &.failed {
       .title, .icon, .details {
-        color: $danger;
+        color: red;
       }
     }
 

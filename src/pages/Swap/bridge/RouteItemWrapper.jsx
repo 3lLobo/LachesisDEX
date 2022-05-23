@@ -1,6 +1,7 @@
 import React from 'react';
 import RouteItemView from './RouteItemView';
 // import RouteItemMobileView from './RouteItemMobileView';
+import "./bridge.scss"
 
 export default function RouteItemWrapper(props) {
   const routeItem = props.data?.route;

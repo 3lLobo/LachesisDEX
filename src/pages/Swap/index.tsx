@@ -62,6 +62,7 @@ import AppBody from '../AppBody'
 import MockAvailableRoutes from './mockRoutesWidget'
 import ReceiverNetworkSelector from './ReceiverNetworkSelector'
 import { TransactionSwap } from 'state/routing/types'
+import swingApi from '../../lib/swingApi'
 
 const AlertWrapper = styled.div`
   max-width: 460px;
@@ -370,22 +371,26 @@ export default function Swap({ history }: RouteComponentProps) {
   ])
 
   // TODO: Fix SWING part.
+  
+  // This causes too many rerenders:
+  // const swingRoutes = useSwingSwapCallback(recipient)
 
-  const { isLoading, isError, data, currentData, error } = useSwingSwapCallback(
-    approvalOptimizedTrade,
-    allowedSlippage,
-    recipient,
-    signatureData,
-  )
+  const [swingRoutes, setSwingRoutes] = useState<any>()
+  useEffect(() => {
+    if (chainId !== receiverChainId) {
+      const res = swingApi.getQuote(
+        1,
+        "MATIC",
+        "MATIC",
+        11
+        )
+      setSwingRoutes(res)
+      }
+  }, [chainId, receiverChainId])
+
   const handleSwingSwap = useCallback(() => {
-    console.log("TODO: post transaction on SWING and let user sign response tx.")
-    if (!isLoading) {
-      console.log("SWING routes: ", data)
-      console.log("SWING current routes: ", currentData)
-    }
-  }, [
-    isLoading, data, currentData
-  ])
+    console.log('🚀 ~ file: index.tsx ~ line 380 ~ Swap ~ swingQuote', swingRoutes)
+  }, [swingRoutes])
 
   // errors
   const [showInverted, setShowInverted] = useState<boolean>(false)
@@ -407,6 +412,7 @@ export default function Swap({ history }: RouteComponentProps) {
   // show approve flow when: no error on inputs, not approved or pending, or approved in current session
   // never show if price impact is above threshold in non expert mode
   const showApproveFlow =
+    chainId === receiverChainId &&
     !isArgentWallet &&
     !swapInputError &&
     (approvalState === ApprovalState.NOT_APPROVED ||
@@ -644,6 +650,39 @@ export default function Swap({ history }: RouteComponentProps) {
                     </ButtonError>
                   </AutoColumn>
                 </AutoRow>
+              ) : chainId !== receiverChainId ? (
+                <div>
+                  <ButtonError
+                    onClick={() => {
+                      if (chainId !== receiverChainId) {
+                        handleSwingSwap()
+                      } else {
+                        setSwapState({
+                          tradeToConfirm: trade,
+                          attemptingTxn: false,
+                          swapErrorMessage: undefined,
+                          showConfirm: true,
+                          txHash: undefined,
+                        })
+                      }
+                    }}
+                    width="100%"
+                    id="swap-button"
+                    disabled={false}
+                    error={false}
+                  >
+                    <Text fontSize={16} fontWeight={500}>
+                      <Trans>Swing Swap</Trans>
+                    </Text>
+                  </ButtonError>
+                  <MockAvailableRoutes
+                    toAddress={account}
+                    fromAddress={account}
+                    toChain={chainId}
+                    fromChain={receiverChainId}
+                  />
+                </div>
+                // <AvailableRoutes isLoading={isLoading} isError={isError} data={data} currentData={currentData} error={error} />
               ) : (
                 <ButtonError
                   onClick={() => {
@@ -668,18 +707,9 @@ export default function Swap({ history }: RouteComponentProps) {
                   </Text>
                 </ButtonError>
               )}
-              {(isExpertMode) && swapErrorMessage ? <SwapCallbackError error={swapErrorMessage} /> : null}
+              {isExpertMode && swapErrorMessage ? <SwapCallbackError error={swapErrorMessage} /> : null}
             </div>
           </AutoColumn>
-          {(chainId !== receiverChainId) && (
-            <MockAvailableRoutes
-              toAddress={account}
-              fromAddress={account}
-              toChain={chainId}
-              fromChain={receiverChainId}
-            />
-            // <AvailableRoutes isLoading={isLoading} isError={isError} data={data} currentData={currentData} error={error} />
-          )}
         </Wrapper>
       </AppBody>
       <D3Card />
