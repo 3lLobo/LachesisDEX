@@ -1,5 +1,6 @@
 import React from 'react';
 // import TokenIconImg from '../TokenIconImg';
+import "./bridge.scss"
 
 const TokenNetworkRouteBox = ({ info }) => {
   const limitDecimalNumbers = (value) => Number.parseFloat(value).toFixed(6);

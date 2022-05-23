@@ -1,4 +1,5 @@
 import React from 'react';
+import "./bridge.scss"
 
 const SwapRouteBox = ({ info }) => {
   return (

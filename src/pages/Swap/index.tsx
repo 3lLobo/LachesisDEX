@@ -62,6 +62,7 @@ import AppBody from '../AppBody'
 import MockAvailableRoutes from './mockRoutesWidget'
 import ReceiverNetworkSelector from './ReceiverNetworkSelector'
 import { TransactionSwap } from 'state/routing/types'
+import swingApi from '../../lib/swingApi'
 
 const AlertWrapper = styled.div`
   max-width: 460px;
@@ -302,7 +303,7 @@ export default function Swap({ history }: RouteComponentProps) {
   const showMaxButton = Boolean(maxInputAmount?.greaterThan(0) && !parsedAmounts[Field.INPUT]?.equalTo(maxInputAmount))
 
   // the callback to execute the swap
-  const { callback: swapCallback, error: swapCallbackError } = useSwingSwapCallback(
+  const { callback: swapCallback, error: swapCallbackError } = useSwapCallback(
     approvalOptimizedTrade,
     allowedSlippage,
     recipient,
@@ -369,62 +370,24 @@ export default function Swap({ history }: RouteComponentProps) {
     approvalOptimizedTrade?.outputAmount?.currency?.symbol,
   ])
 
+  // TODO: Fix SWING part.
+  
+  // This causes too many rerenders:
+  // const swingRoutes = useSwingSwapCallback(recipient)
+
+  const [swingRoutes, setSwingRoutes] = useState<any>()
+  useEffect(() => {
+    if (chainId !== receiverChainId) {
+      const res = swingApi.getNewQuote(
+        recipient
+        )
+      setSwingRoutes(res)
+      }
+  }, [chainId, receiverChainId])
+
   const handleSwingSwap = useCallback(() => {
-    console.log('🚀 ~ file: index.tsx ~ line 593 ~ Swap ~ (chainId !== receiverChainId)', chainId !== receiverChainId)
-    if (!swapCallback) {
-      return
-    }
-    // if (priceImpact && !confirmPriceImpactWithoutFee(priceImpact)) {
-    //   return
-    // }
-    setSwapState({ attemptingTxn: true, tradeToConfirm, showConfirm, swapErrorMessage: undefined, txHash: undefined })
-    swapCallback()
-      .then((hash) => {
-        console.log('UUUUUUU', hash)
-        setSwapState({
-          attemptingTxn: false,
-          tradeToConfirm,
-          showConfirm,
-          swapErrorMessage: undefined,
-          txHash: hash ? hash.toString() : undefined,
-        })
-        ReactGA.event({
-          category: 'Swap',
-          action:
-            recipient === null
-              ? 'Swap w/o Send'
-              : (recipientAddress ?? recipient) === account
-              ? 'Swap w/o Send + recipient'
-              : 'Swap w/ Send',
-          label: [
-            approvalOptimizedTradeString,
-            approvalOptimizedTrade?.inputAmount?.currency?.symbol,
-            approvalOptimizedTrade?.outputAmount?.currency?.symbol,
-            'MH',
-          ].join('/'),
-        })
-      })
-      .catch((error) => {
-        setSwapState({
-          attemptingTxn: false,
-          tradeToConfirm,
-          showConfirm,
-          swapErrorMessage: error.message,
-          txHash: undefined,
-        })
-      })
-  }, [
-    swapCallback,
-    priceImpact,
-    tradeToConfirm,
-    showConfirm,
-    recipient,
-    recipientAddress,
-    account,
-    approvalOptimizedTradeString,
-    approvalOptimizedTrade?.inputAmount?.currency?.symbol,
-    approvalOptimizedTrade?.outputAmount?.currency?.symbol,
-  ])
+    console.log('🚀 ~ file: index.tsx ~ line 380 ~ Swap ~ swingQuote', swingRoutes)
+  }, [swingRoutes])
 
   // errors
   const [showInverted, setShowInverted] = useState<boolean>(false)
@@ -446,6 +409,7 @@ export default function Swap({ history }: RouteComponentProps) {
   // show approve flow when: no error on inputs, not approved or pending, or approved in current session
   // never show if price impact is above threshold in non expert mode
   const showApproveFlow =
+    chainId === receiverChainId &&
     !isArgentWallet &&
     !swapInputError &&
     (approvalState === ApprovalState.NOT_APPROVED ||
@@ -683,6 +647,39 @@ export default function Swap({ history }: RouteComponentProps) {
                     </ButtonError>
                   </AutoColumn>
                 </AutoRow>
+              ) : chainId !== receiverChainId ? (
+                <div>
+                  <ButtonError
+                    onClick={() => {
+                      if (chainId !== receiverChainId) {
+                        handleSwingSwap()
+                      } else {
+                        setSwapState({
+                          tradeToConfirm: trade,
+                          attemptingTxn: false,
+                          swapErrorMessage: undefined,
+                          showConfirm: true,
+                          txHash: undefined,
+                        })
+                      }
+                    }}
+                    width="100%"
+                    id="swap-button"
+                    disabled={false}
+                    error={false}
+                  >
+                    <Text fontSize={16} fontWeight={500}>
+                      <Trans>Swing Swap</Trans>
+                    </Text>
+                  </ButtonError>
+                  <MockAvailableRoutes
+                    toAddress={account}
+                    fromAddress={account}
+                    toChain={chainId}
+                    fromChain={receiverChainId}
+                  />
+                </div>
+                // <AvailableRoutes isLoading={isLoading} isError={isError} data={data} currentData={currentData} error={error} />
               ) : (
                 <ButtonError
                   onClick={() => {
@@ -707,17 +704,9 @@ export default function Swap({ history }: RouteComponentProps) {
                   </Text>
                 </ButtonError>
               )}
-              {(isExpertMode) && swapErrorMessage ? <SwapCallbackError error={swapErrorMessage} /> : null}
+              {isExpertMode && swapErrorMessage ? <SwapCallbackError error={swapErrorMessage} /> : null}
             </div>
           </AutoColumn>
-          {(chainId !== receiverChainId) && (
-            <MockAvailableRoutes
-              toAddress={account}
-              fromAddress={account}
-              toChain={chainId}
-              fromChain={receiverChainId}
-            />
-          )}
         </Wrapper>
       </AppBody>
       <D3Card />

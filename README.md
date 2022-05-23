@@ -1,8 +1,13 @@
-# Decentralized EXchange using Lachesis consensus algorithm
+# Decentralized Exchange using Lachesis consensus algorithm
 
 Submission project for HackTheMoney | ETHGlobal 2022
 
-## About the app
+
+![image](public/lachesis_banner.png)
+
+
+# About the app
+
 
 We're building a decentralized exchange for cross chain swaps. This way users will be equipped to swap any token from any chain, in short - An Interchain DEX. We deployed the Uniswap factoryV3 on Fantom testnet to take advantage of Lachesis Consensus but the tokens haven't been confirmed yet. 
 

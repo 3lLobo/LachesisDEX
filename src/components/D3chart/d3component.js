@@ -37,7 +37,6 @@ export default function D3Card() {
         value: Math.round(d.amountUSD),
       }
     })
-    console.log('🚀 ~ file: d3component.js ~ line 39 ~ newData ~ newData', newData)
     setData(newData)
   }
 

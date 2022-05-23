@@ -1,4 +1,6 @@
 // eslint-disable-next-line no-restricted-imports
+
+// UNUSED, merged with hooks/useSwapCall.tsx
 import { skipToken } from '@reduxjs/toolkit/query/react'
 import { BigNumber } from '@ethersproject/bignumber'
 import { TransactionResponse } from '@ethersproject/providers'
@@ -16,6 +18,8 @@ import { ReactNode, useMemo } from 'react'
 import useSendSwapTransaction from './useSendSwapTransaction'
 import { useSwingSwapQuery } from 'state/routing/sliceSwing'
 import { GetSwingQuoteResult, GetSwingSwapResult } from 'state/routing/types'
+import { SerializedError } from '@reduxjs/toolkit'
+import { FetchBaseQueryError } from '@reduxjs/toolkit/dist/query'
 
 export enum SwapCallbackState {
   INVALID,
@@ -24,9 +28,11 @@ export enum SwapCallbackState {
 }
 
 interface UseSwingSwapCallbackReturns {
-  state: SwapCallbackState
-  callback?: () => Promise<GetSwingSwapResult | undefined>
-  error?: ReactNode
+  isLoading: boolean
+  isError: boolean
+  data: GetSwingSwapResult | undefined
+  currentData: GetSwingSwapResult | undefined
+  error: FetchBaseQueryError | SerializedError | undefined
 }
 interface UseSwingSwapCallbackArgs {
   trade: AnyTrade | undefined // trade to execute, required
@@ -64,17 +70,13 @@ export function useSwingSwapCallback({
     tokenOut: currencyOut,
     amount: amountSpecified,
     fromUserAddress: account ?? undefined,
-    toUserAddress: undefined,
+    toUserAddress: account ?? undefined,
   })
 
-  const Callback = function (): GetSwingSwapResult | undefined {
-    const { isLoading, isError, data, currentData } = useSwingSwapQuery(swapCalls ?? skipToken, {
-      pollingInterval: ms`15s`,
-      refetchOnFocus: true,
-    })
-    const swapResult: GetSwingSwapResult | undefined = data
-    return swapResult
-  }
+  const { isLoading, isError, data, currentData, error } = useSwingSwapQuery(swapCalls ?? skipToken, {
+    pollingInterval: 15000,
+    refetchOnFocus: true,
+  })
 
   // const quoteResult: GetSwingQuoteResult | undefined = useIsValidBlock(Number(data?.blockNumber) || 0)
   //   ? data
@@ -84,22 +86,5 @@ export function useSwingSwapCallback({
 
   // const { address: recipientAddress } = useENS(recipientAddressOrName)
   // const recipient = recipientAddressOrName === null ? account : recipientAddress
-
-  return useMemo(() => {
-    // if (!trade || !library || !account || !chainId || !callback) {
-    //   return { state: SwapCallbackState.INVALID, error: <Trans>Missing dependencies</Trans> }
-    // }
-    // if (!recipient) {
-    //   if (recipientAddressOrName !== null) {
-    //     return { state: SwapCallbackState.INVALID, error: <Trans>Invalid recipient</Trans> }
-    //   } else {
-    //     return { state: SwapCallbackState.LOADING }
-    //   }
-    // }
-
-    return {
-      state: SwapCallbackState.VALID,
-      callback: async () => Callback(),
-    }
-  }, [trade, library, account, chainId, recipientAddressOrName])
+  return { isLoading, isError, data, currentData, error }
 }

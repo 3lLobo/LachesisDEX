@@ -27,7 +27,7 @@ export function useSwingSwapCallArguments({
   toUserAddress,
 }: {
   tokenIn: Currency | undefined
-  tokenOut: Currency | undefined
+  tokenOut: Currency | null | undefined
   fromUserAddress: string | undefined
   amount: CurrencyAmount<Currency> | undefined
   toUserAddress: string | undefined
