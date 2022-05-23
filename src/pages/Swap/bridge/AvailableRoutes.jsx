@@ -65,13 +65,16 @@ export default function AvailableRoutes(props) {
 
   return (
     <div
+      className='available-routes-wrapper control'
       aria-label="Available routes for the swap"
     >
       <div
+        className='loader-wrapper is-active'
       >
         <div className="loader is-loading" />
       </div>
       <div
+      className='unavailable-warning-wrapper'
       >
         <div>
           <div>

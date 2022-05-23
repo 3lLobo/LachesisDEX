@@ -378,11 +378,8 @@ export default function Swap({ history }: RouteComponentProps) {
   const [swingRoutes, setSwingRoutes] = useState<any>()
   useEffect(() => {
     if (chainId !== receiverChainId) {
-      const res = swingApi.getQuote(
-        1,
-        "MATIC",
-        "MATIC",
-        11
+      const res = swingApi.getNewQuote(
+        recipient
         )
       setSwingRoutes(res)
       }

@@ -87,6 +87,21 @@ export default {
         return priceData;
     },
 
+    getNewQuote: async function (fromUserAddress) {
+        const priceData = await this.sendGet('v0/transfer/quote', {
+            fromChain: 'ethereum',
+            fromChainId: '1',
+            fromTokenAddress: '0x0000000000000000000000000000000000000000',
+            fromUserAddress,
+            toChain: 'polygon',
+            toChainId: '137',
+            tokenAmount: 11,
+            tokenSymbol: 'ETH'
+        });
+
+        return priceData;
+    },
+
     getApprove: async function (userAddress, route, chainId, tokenAddress, amount) {
         const tx = await this.sendGet('approve', {
             route,
