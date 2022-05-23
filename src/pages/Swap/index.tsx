@@ -302,7 +302,7 @@ export default function Swap({ history }: RouteComponentProps) {
   const showMaxButton = Boolean(maxInputAmount?.greaterThan(0) && !parsedAmounts[Field.INPUT]?.equalTo(maxInputAmount))
 
   // the callback to execute the swap
-  const { callback: swapCallback, error: swapCallbackError } = useSwingSwapCallback(
+  const { callback: swapCallback, error: swapCallbackError } = useSwapCallback(
     approvalOptimizedTrade,
     allowedSlippage,
     recipient,
@@ -369,61 +369,22 @@ export default function Swap({ history }: RouteComponentProps) {
     approvalOptimizedTrade?.outputAmount?.currency?.symbol,
   ])
 
-  const handleSwingSwap = useCallback(() => {
-    console.log('🚀 ~ file: index.tsx ~ line 593 ~ Swap ~ (chainId !== receiverChainId)', chainId !== receiverChainId)
-    if (!swapCallback) {
-      return
-    }
-    // if (priceImpact && !confirmPriceImpactWithoutFee(priceImpact)) {
-    //   return
-    // }
-    setSwapState({ attemptingTxn: true, tradeToConfirm, showConfirm, swapErrorMessage: undefined, txHash: undefined })
-    swapCallback()
-      .then((hash) => {
-        console.log('UUUUUUU', hash)
-        setSwapState({
-          attemptingTxn: false,
-          tradeToConfirm,
-          showConfirm,
-          swapErrorMessage: undefined,
-          txHash: hash ? hash.toString() : undefined,
-        })
-        ReactGA.event({
-          category: 'Swap',
-          action:
-            recipient === null
-              ? 'Swap w/o Send'
-              : (recipientAddress ?? recipient) === account
-              ? 'Swap w/o Send + recipient'
-              : 'Swap w/ Send',
-          label: [
-            approvalOptimizedTradeString,
-            approvalOptimizedTrade?.inputAmount?.currency?.symbol,
-            approvalOptimizedTrade?.outputAmount?.currency?.symbol,
-            'MH',
-          ].join('/'),
-        })
-      })
-      .catch((error) => {
-        setSwapState({
-          attemptingTxn: false,
-          tradeToConfirm,
-          showConfirm,
-          swapErrorMessage: error.message,
-          txHash: undefined,
-        })
-      })
-  }, [
-    swapCallback,
-    priceImpact,
-    tradeToConfirm,
-    showConfirm,
+  // TODO: Fix SWING part.
+
+  const { isLoading, isError, data, currentData, error } = useSwingSwapCallback(
+    approvalOptimizedTrade,
+    allowedSlippage,
     recipient,
-    recipientAddress,
-    account,
-    approvalOptimizedTradeString,
-    approvalOptimizedTrade?.inputAmount?.currency?.symbol,
-    approvalOptimizedTrade?.outputAmount?.currency?.symbol,
+    signatureData,
+  )
+  const handleSwingSwap = useCallback(() => {
+    console.log("TODO: post transaction on SWING and let user sign response tx.")
+    if (!isLoading) {
+      console.log("SWING routes: ", data)
+      console.log("SWING current routes: ", currentData)
+    }
+  }, [
+    isLoading, data, currentData
   ])
 
   // errors
@@ -717,6 +678,7 @@ export default function Swap({ history }: RouteComponentProps) {
               toChain={chainId}
               fromChain={receiverChainId}
             />
+            // <AvailableRoutes isLoading={isLoading} isError={isError} data={data} currentData={currentData} error={error} />
           )}
         </Wrapper>
       </AppBody>

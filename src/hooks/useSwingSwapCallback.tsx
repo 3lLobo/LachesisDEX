@@ -8,6 +8,12 @@ import { ReactNode, useMemo } from 'react'
 import { TransactionSwap } from 'state/routing/types'
 import { Field } from 'state/swap/actions'
 import { useSwapState } from 'state/swap/hooks'
+import { useSwingSwapQuery } from 'state/routing/sliceSwing'
+import { useSwingSwapCallArguments } from 'hooks/useSwingSwapCallArguments'
+import { skipToken } from '@reduxjs/toolkit/query/react'
+import { GetSwingQuoteResult, GetSwingSwapResult } from 'state/routing/types'
+import { SerializedError } from '@reduxjs/toolkit'
+import { FetchBaseQueryError } from '@reduxjs/toolkit/dist/query'
 
 import { useTransactionAdder } from '../state/transactions/hooks'
 import { TransactionType } from '../state/transactions/types'
@@ -27,9 +33,11 @@ export function useSwingSwapCallback(
   recipientAddressOrName: string | null, // the ENS name or address of the recipient of the trade, or null if swap should be returned to sender
   signatureData: SignatureData | undefined | null
 ): {
-  state: SwapCallbackState
-  callback: null | (() => Promise<TransactionSwap | undefined>)
-  error: ReactNode | null
+  isLoading: boolean
+  isError: boolean
+  data: GetSwingSwapResult | undefined
+  currentData: GetSwingSwapResult | undefined
+  error: SerializedError | FetchBaseQueryError | undefined
 } {
   const {
     independentField,
@@ -53,7 +61,7 @@ export function useSwingSwapCallback(
     200
   )
 
-  const { account } = useActiveWeb3React()
+  const { account, chainId, library } = useActiveWeb3React()
 
   const deadline = useTransactionDeadline()
 
@@ -62,37 +70,18 @@ export function useSwingSwapCallback(
   const { address: recipientAddress } = useENS(recipientAddressOrName)
   const recipient1 = recipientAddressOrName === null ? account : recipientAddress
 
-  const {
-    state,
-    callback: libCallback,
-    error,
-  } = useLibSwapCallBack({
-    trade,
-    allowedSlippage,
-    recipientAddressOrName: recipient,
-    signatureData,
-    deadline,
-    amount: parsedAmount,
-    amountSpecified: debouncedAmount,
-    otherCurrency: debouncedOtherCurrency ?? undefined,
+  const swapCalls = useSwingSwapCallArguments({
+    tokenIn: debouncedAmount?.currency,
+    tokenOut: debouncedOtherCurrency,
+    amount: debouncedAmount,
+    fromUserAddress: account ?? undefined,
+    toUserAddress: account ?? undefined,
   })
 
-  const callback = useMemo(() => {
-    if (!libCallback) {
-      return null
-    }
-    return () =>
-      libCallback().then((response) => {
-        if (!response) {
-          return undefined
-        }
-        return response.tx
-      })
-  }, [addTransaction, allowedSlippage, trade])
+  const { isLoading, isError, data, currentData, error } = useSwingSwapQuery(swapCalls ?? skipToken, {
+    pollingInterval: 15000,
+    refetchOnFocus: true,
+  })
 
-  return {
-    state,
-    callback,
-    error,
-  }
+  return { isLoading, isError, data, currentData, error }
 }

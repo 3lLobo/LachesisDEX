@@ -100,7 +100,6 @@ export function useDerivedSwapInfo(): {
   const inputCurrency = useCurrency(inputCurrencyId)
   const outputCurrency = useCurrency(outputCurrencyId)
   // override the chaind id
-  console.log('AAAAAAA', outputCurrency)
   //
   const recipientLookup = useENS(recipient ?? undefined)
   const to: string | null = (recipient === null ? account : recipientLookup.address) ?? null
@@ -121,7 +120,6 @@ export function useDerivedSwapInfo(): {
     parsedAmount,
     (isExactIn ? outputCurrency : inputCurrency) ?? undefined
   )
-  console.log('YYYYYY', trade)
 
   const currencyBalances = useMemo(
     () => ({
