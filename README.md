@@ -2,6 +2,11 @@
 
 Submission project for HackTheMoney | ETHGlobal 2022
 
+[What is Lachesis?](https://www.fantom.foundation/lachesis-consensus-algorithm/)
+
+[Live Preview](https://lachesiswap.netlify.app/)
+
+<!-- [Presentation](https://www.loom.com/share/439753118c80408984a1c77b41a96bc6) -->
 
 ![image](public/lachesis_banner.png)
 
@@ -9,7 +14,7 @@ Submission project for HackTheMoney | ETHGlobal 2022
 # About the app
 
 
-We're building a decentralized exchange for cross chain swaps. This way users will be equipped to swap any token from any chain, in short - An Interchain DEX. We deployed the Uniswap factoryV3 on Fantom testnet to take advantage of Lachesis Consensus but the tokens haven't been confirmed yet. 
+We build a decentralized exchange for cross chain swaps. This way users will be equipped to swap any token from any chain, in short - An Interchain DEX. We deployed the Uniswap factoryV3 on Fantom testnet to take advantage of Lachesis Consensus but the tokens haven't been confirmed yet. 
 
 Polygon Mumbai offers deployed uniswap contract and verified token addresses. Thus we use this chain for demonstration purposes. 
 
