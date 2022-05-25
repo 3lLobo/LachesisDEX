@@ -2,6 +2,24 @@ import React from 'react';
 import "./bridge.scss"
 // import Wallet from '../../../utils/wallet';
 import RouteItemWrapper from './RouteItemWrapper';
+import styled from 'styled-components/macro'
+
+const StyledHeader = styled.div`
+  font-size: 14px;
+  font-weight: bold;
+  display: flex;
+  justify-content: flex-center;
+  border-radius: 50%;
+  height: 8px;
+  width: full;
+  margin: 21px;
+`
+
+const StyledFlex = styled.div`
+  display: flex;
+  flex-direction: column;
+`
+
 
 export default function AvailableRoutes(props) {
   const GENERIC_SUPPORTED_BRIDGE_TOKENS = ['USDC', 'USDT', 'DAI'];
@@ -13,10 +31,10 @@ export default function AvailableRoutes(props) {
     let targetBridgeToken = 'USDC';
 
     // value being displayed to the users => return amount -  desinationTxFee - bridgeFee
+    const totalFeeWithoutGas = -( v.destinationTxFee + v.bridgeFee) * Math.pow(10, -8) 
+    const estimatedReturnAmountDeductedByFees = props.fromAmount -( v.destinationTxFee + v.bridgeFee) * Math.pow(10, -8) 
     // const { estimatedReturnAmountDeductedByFees, totalFeeWithoutGas } =
     // Wallet.returnEstimatedReturnAmountDeductedByFees(v);
-    const estimatedReturnAmountDeductedByFees = 111
-    const totalFeeWithoutGas = 1
 
     route.push({
       type: 'token-network',
@@ -29,7 +47,7 @@ export default function AvailableRoutes(props) {
       type: 'bridge',
       data: {
         name: v.route[0].bridge,
-        fee: 0.05,
+        fee: totalFeeWithoutGas,
       },
     });
 
@@ -74,20 +92,22 @@ export default function AvailableRoutes(props) {
         <div className="loader is-loading" />
       </div>
       <div
-      className='unavailable-warning-wrapper'
+        className='unavailable-warning-wrapper'
       >
         <div>
           <div>
             <ion-icon name="alert-circle-outline" />
           </div>
-          <div>SWING routes availabe:</div>
+          <StyledHeader>SWING routes availabe:</StyledHeader>
         </div>
       </div>
-      {routes
-        ?.filter((item) => item.bridgeType === 'celer' || item.bridgeType === 'nxtp' || item.bridgeType === 'anyswap')
-        .map((item, i) => (
-          <RouteItemWrapper handleChange={props.handleChange} key={i} data={item} index={i} />
-        ))}
+      <StyledFlex>
+        {routes
+          ?.filter((item) => item.bridgeType === 'celer' || item.bridgeType === 'nxtp' || item.bridgeType === 'anyswap')
+          .map((item, i) => (
+            <RouteItemWrapper handleChange={props.handleChange} key={i} data={item} index={i} />
+          ))}
+      </StyledFlex>
     </div>
   );
 }

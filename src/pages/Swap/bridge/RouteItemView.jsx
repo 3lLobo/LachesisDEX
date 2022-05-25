@@ -4,10 +4,18 @@ import AdditionalInfoItem from './AdditionalInfoItem';
 import DashedDivider from './DashedDivider';
 import {CHAIN_INFO } from '../../../constants/chainInfo.ts'
 import "./bridge.scss"
+import styled from 'styled-components/macro'
+
+
+const StyledFlex = styled.div`
+  display: flex;
+  flex-direction: row;
+`
 
 const RouteItemView = ({ data }) => {
+  
   return (
-    <div className="bridge-route-item">
+    <StyledFlex className="bridge-route-item">
       {data.length > 0 &&
         data.map((item, index) => {
           const chainId = item.network
@@ -41,7 +49,7 @@ const RouteItemView = ({ data }) => {
               return null;
           }
         })}
-    </div>
+    </StyledFlex>
   );
 };
 

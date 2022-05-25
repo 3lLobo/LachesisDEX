@@ -15,7 +15,6 @@ import { GetSwingQuoteResult, GetSwingSwapResult } from 'state/routing/types'
 import { SerializedError } from '@reduxjs/toolkit'
 import { FetchBaseQueryError } from '@reduxjs/toolkit/dist/query'
 import swingApi from '../lib/swingApi'
-
 import { useTransactionAdder } from '../state/transactions/hooks'
 import { TransactionType } from '../state/transactions/types'
 import { currencyId } from '../utils/currencyId'
@@ -52,13 +51,7 @@ export function useSwingSwapCallback(recipientAddressOrName: string | null): Pro
     200
   )
 
-  console.log('🚀 ~ file: useSwingSwapCallback.tsx ~ line 56 ~ parsedAmount', parsedAmount)
-
   const { account, chainId, library } = useActiveWeb3React()
-
-  const deadline = useTransactionDeadline()
-
-  const addTransaction = useTransactionAdder()
 
   const { address: recipientAddress } = useENS(recipientAddressOrName)
   const recipient1 = recipientAddressOrName === null ? account : recipientAddress
@@ -73,12 +66,11 @@ export function useSwingSwapCallback(recipientAddressOrName: string | null): Pro
     toUserAddress: account ?? undefined,
   })
 
-  console.log('🚀 ~ file: useSwingSwapCallback.tsx ~ line 81 ~ swapCalls', swapCalls)
 
-  // const { isLoading, isError, data, currentData, error } = useSwingSwapQuery(swapCalls ?? skipToken, {
-  //   pollingInterval: 15000,
-  //   refetchOnFocus: true,
-  // })
+  const { isLoading, isError, data, currentData, error } = useSwingSwapQuery(swapCalls ?? skipToken, {
+    pollingInterval: 15000,
+    refetchOnFocus: true,
+  })
 
   
   const swingQuote = swingApi.getQuote(

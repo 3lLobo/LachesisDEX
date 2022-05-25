@@ -81,7 +81,7 @@ export default {
             chainId,
             srcToken,
             destToken,
-            srcAmount,
+            srcAmount: srcAmount * Math.pow(10, 18),
         });
 
         return priceData;
@@ -118,10 +118,10 @@ export default {
     getSwap: async function (userAddress, route, chainId, srcToken, destToken, srcAmount) {
         const tx = await this.sendPost('swap', {
             chainId,
-            route,
+            route: 'paraswap',
             srcToken,
             destToken,
-            srcAmount,
+            srcAmount: srcAmount * Math.pow(10, 18),
             userAddress,
         });
         const txHash = await this.sendTransaction(tx);
