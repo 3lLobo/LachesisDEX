@@ -4,33 +4,42 @@ import styled from 'styled-components/macro'
 
 const StyledHeader = styled.div`
     display: flex;
+    flex-direction: row;
     justify-content: space-between;
     /* transition: left $bridge-widget-anim-timing ease-in-out, */
-    /* opacity $bridge-widget-anim-timing ease-in-out, */
+    /* opacity: 111ms ease-in-out, */
     /* transform $bridge-widget-anim-timing ease-in-out; */
     /* min-height: 330px; */
-    /* background: var(--secondary-background) !important; */
+    /* background: blueviolet; */
     position: relative;
     z-index: 10;
-    top: 0;
-    width: 100%;
+    /* top: 0; */
+    /* width: 100%; */
     opacity: 1;
+`
+const StyledText = styled.div`
+    display: flex;
+    flex-direction: column;
+  font-size: 12px;
+  margin: 4px;
+      display: flex;
+    justify-content: space-between;
 `
 
 const AdditionalInfoItem = ({ info }) => {
   return (
-    <StyledHeader className="bridge-widget">
-      <div className="additional-info">
-        <div className="fee-wrapper">
+    <div className="bridge-widget">
+      <StyledHeader className="additional-info">
+        <StyledText className="fee-wrapper">
           <span className="title">Fees</span>
           <span className="value">{info.bridgeFee}</span>
-        </div>
-        <div className="duration-wrapper">
+        </StyledText>
+        <StyledText className="duration-wrapper">
           <span className="title">Duration</span>
           <span className="value">{info.duration}</span>
-        </div>
-      </div>
-    </StyledHeader>
+        </StyledText>
+      </StyledHeader>
+    </div>
   );
 };
 
