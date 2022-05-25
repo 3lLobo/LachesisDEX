@@ -63,6 +63,7 @@ import MockAvailableRoutes from './mockRoutesWidget'
 import ReceiverNetworkSelector from './ReceiverNetworkSelector'
 import { TransactionSwap } from 'state/routing/types'
 import swingApi from '../../lib/swingApi'
+import tryParseCurrencyAmount from '../../lib/utils/tryParseCurrencyAmount'
 
 const AlertWrapper = styled.div`
   max-width: 460px;
@@ -371,23 +372,41 @@ export default function Swap({ history }: RouteComponentProps) {
   ])
 
   // TODO: Fix SWING part.
-  
+
   // This causes too many rerenders:
   // const swingRoutes = useSwingSwapCallback(recipient)
 
   const [swingRoutes, setSwingRoutes] = useState<any>()
   useEffect(() => {
-    if (chainId !== receiverChainId) {
-      const res = swingApi.getNewQuote(
-        recipient
-        )
+    if (chainId !== receiverChainId && loadedInputCurrency !== undefined && typedValue) {
+      const res = swingApi.getQuote(
+        // recipient,
+        chainId,
+        loadedInputCurrency?.symbol,
+        loadedInputCurrency?.symbol,
+        typedValue
+      )
       setSwingRoutes(res)
-      }
-  }, [chainId, receiverChainId])
+    }
+  }, [chainId, receiverChainId, loadedInputCurrency, loadedOutputCurrency, typedValue])
 
-  const handleSwingSwap = useCallback(() => {
-    console.log('🚀 ~ file: index.tsx ~ line 380 ~ Swap ~ swingQuote', swingRoutes)
-  }, [swingRoutes])
+  function handleSwingSwap() {
+    if (swingRoutes !== undefined) {
+      const txHash = swingApi.getSwap(
+        account,
+        swingRoutes,
+        chainId,
+        loadedInputCurrency?.symbol,
+        loadedInputCurrency?.symbol,
+        typedValue,
+      )
+      console.log('🚀 ~ file: index.tsx ~ line 407 ~ handleSwingSwap ~ txHash', txHash)
+    }
+  }
+
+  // const handleSwingSwap = useCallback(() => {
+  //   console.log(swingRoutes)
+  // }, [swingRoutes])
 
   // errors
   const [showInverted, setShowInverted] = useState<boolean>(false)
@@ -679,8 +698,8 @@ export default function Swap({ history }: RouteComponentProps) {
                     fromChain={receiverChainId}
                   />
                 </div>
-                // <AvailableRoutes isLoading={isLoading} isError={isError} data={data} currentData={currentData} error={error} />
               ) : (
+                // <AvailableRoutes isLoading={isLoading} isError={isError} data={data} currentData={currentData} error={error} />
                 <ButtonError
                   onClick={() => {
                     if (chainId !== receiverChainId) {
