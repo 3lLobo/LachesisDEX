@@ -398,7 +398,7 @@ export default function Swap({ history }: RouteComponentProps) {
         chainId,
         loadedInputCurrency?.symbol,
         loadedInputCurrency?.symbol,
-        typedValue,
+        typedValue
       )
       console.log('🚀 ~ file: index.tsx ~ line 407 ~ handleSwingSwap ~ txHash', txHash)
     }
@@ -692,6 +692,7 @@ export default function Swap({ history }: RouteComponentProps) {
                     </Text>
                   </ButtonError>
                   <MockAvailableRoutes
+                    fromAmount={typedValue}
                     toAddress={account}
                     fromAddress={account}
                     toChain={chainId}
