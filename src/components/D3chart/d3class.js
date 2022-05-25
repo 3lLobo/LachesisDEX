@@ -90,7 +90,7 @@ class D3Class {
       .attr('d', ribbon)
       .on('mouseover', popout)
       .on('mouseout', popback)
-      .on('click', onDatapointClick)
+      // .on('click', onDatapointClick)
       .append('title')
       .text((d) => `${names[d.source.index]} → ${names[d.target.index]} ${expValue(d.source.value)}`)
 
@@ -124,7 +124,7 @@ class D3Class {
       .text((d) => names[d.index])
       .on('mouseover', overed)
       .on('mouseout', outed)
-      .on('click', onDatapointClick)
+      // .on('click', overed)
 
     group.append('title').text(
       (d) => `${names[d.index]}
@@ -136,9 +136,11 @@ class D3Class {
     }
 
     function popout(event, d) {
+      const logText = names[d.source.index] + ` value: ${d.source.value} to ${names[d.target.index]} value: ${d.target.value}`
       console.log(
-        names[d.source.index] + ` value: ${d.source.value} to ${names[d.target.index]} value: ${d.target.value}`
+        logText
       )
+      onDatapointClick(logText)
       console.log(d)
       d3.select(this).attr('fill-opacity', 1).raise()
     }
@@ -148,7 +150,9 @@ class D3Class {
     }
 
     function overed(event, d) {
-      console.log(names[d.index] + ` value: ${d.value}`)
+      const logText = names[d.index] + ` value: ${d.value}`
+      onDatapointClick(logText)
+      console.log(logText)
       d3.select(this).attr('font-weight', 'bold')
     }
 

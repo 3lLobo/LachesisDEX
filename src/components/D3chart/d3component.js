@@ -1,11 +1,76 @@
 // import { Box, Text, AspectRatio, useStyleConfig, useColorModeValue, Heading } from '@chakra-ui/react'
 import { useState, useEffect, useRef } from 'react'
 import * as d3 from 'd3'
-import resflare from './flare.json'
 import d3class from './d3class'
 import { useQuery } from '@apollo/client'
-
+import styled, { keyframes } from 'styled-components/macro'
 import { swapQuery } from '../../graphQL/queries'
+
+
+const StyledLink = styled.div`
+  text-decoration: none;
+  color: ${({ theme }) => theme.primary1};
+  font-weight: 500;
+
+  :hover {
+    text-decoration: underline;
+  }
+
+  :focus {
+    outline: none;
+    text-decoration: underline;
+  }
+
+  :active {
+    text-decoration: none;
+  }
+`
+
+export const Controls = styled.div`
+  align-items: center;
+  display: flex;
+  justify-content: flex-start;
+  padding: 0 20px 20px 20px;
+`
+
+const BodyText = styled.div`
+  color: rgba(130, 71, 229);
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  margin: 8px;
+  font-size: 14px;
+`
+const RootWrapper = styled.div`
+  position: relative;
+  margin-top: 16px;
+`
+const ContentWrapper = styled.div`
+  background: radial-gradient(100% 93.36% at 0% 6.64%, rgba(160, 108, 247, 0.1) 0%, rgba(82, 32, 166, 0.1) 100%);
+  border-radius: 20px;
+  display: flex;
+  flex-direction: row;
+  overflow: hidden;
+  position: relative;
+  width: 100%;
+
+  :before {
+    background-repeat: no-repeat;
+    background-size: 300px;
+    content: '';
+    height: 300px;
+    opacity: 0.1;
+    position: absolute;
+    transform: rotate(25deg) translate(-90px, -40px);
+    width: 300px;
+    z-index: -1;
+  }
+`
+const Header = styled.h2`
+  font-weight: 600;
+  font-size: 16px;
+  margin: 0;
+`
 
 // let vis
 export default function D3Card() {
@@ -76,9 +141,9 @@ export default function D3Card() {
   //     console.log('fetchh')
   // }
 
-  function onClick(e, p) {
-    console.log('Click', p)
-    // setActive(p.data.name + ': ' + p.value.toString())
+  function onClick(p) {
+    // console.log('Click', p)
+    setActive(p)
   }
 
   function initVis() {
@@ -116,6 +181,24 @@ export default function D3Card() {
       //   p={paddingBox}
       ref={boxref}
     >
+      <RootWrapper>
+        <ContentWrapper>
+          {/* <LinkOutToBridge href={bridge}> */}
+          <BodyText >
+            {/* <L2Icon src={logoUrl} /> */}
+            {/* <AutoRow> */}
+            {/* <Header>
+                <Trans>{label} token bridge</Trans>
+              </Header> */}
+            {/* <HideSmall> */}
+            <div>{active}</div>
+            {/* </HideSmall> */}
+            {/* </AutoRow>   */}
+          </BodyText>
+          {/* <StyledArrowUpRight color={textColor} /> */}
+          {/* </LinkOutToBridge> */}
+        </ContentWrapper>
+      </RootWrapper>
       <svg
         ref={refElement}
         style={{
@@ -132,6 +215,7 @@ export default function D3Card() {
         <g className="x-axis" />
         <g className="y-axis" />
       </svg>
+
     </div>
   )
 }
