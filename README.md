@@ -2,15 +2,18 @@
 
 Submission project for HackTheMoney | ETHGlobal 2022
 
+
 ![image](public/lachesis_banner.png)
 
+
 # About the app
+
 
 We're building a decentralized exchange for cross chain swaps. This way users will be equipped to swap any token from any chain, in short - An Interchain DEX. We deployed the Uniswap factoryV3 on Fantom testnet to take advantage of Lachesis Consensus but the tokens haven't been confirmed yet. 
 
 Polygon Mumbai offers deployed uniswap contract and verified token addresses. Thus we use this chain for demonstration purposes. 
 
-# Why Lachesis ?
+## Why Lachesis ?
 
 Lachesis is a break-through aBFT consensus algorithm developed by Fantom.
 
@@ -24,7 +27,7 @@ malicious nodes.
 Final: Lachesis's output can be used immediately. Transactions are confirmed within 1-2 seconds.
 ```
 
-# Interchain swaps using Bridge
+## Interchain swaps using Bridge
 
 ```
 Swing API v0 enables cross-chain token transfers and token swaps through Multichain(Anyswap), Wormhole,
@@ -32,13 +35,14 @@ Celer Bridge, deBridge, Hop Bridge, Hyphen bridge, Connext(NXTP), Rainbow bridge
 ```
 Thus , we use SWING API to find us the best & the most optimal bridge in terms of fees. Combined with Uniswap it would allow to swap to another chain and to use a shared interchain liquidity pool.
 
-# Data on Swaps & Liquidity 
+## Data on Swaps & Liquidity 
 
 A chart which displays the newest swaps above a certain threshold on the mainnet.
+
 ![image](https://user-images.githubusercontent.com/70228821/169710275-d396cb31-5e75-4475-80b4-b5ea4e82bcff.png)
 
 
-# Roadmap
+## Roadmap
 
 TheGraph offers us uniswap data.
   - Build a subgraph which tracks all interchain swaps and liquidity.
