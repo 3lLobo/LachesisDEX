@@ -4,12 +4,11 @@ import { Currency, CurrencyAmount, Token, TradeType } from '@uniswap/sdk-core'
 import { Trade as V2Trade } from '@uniswap/v2-sdk'
 import { Trade as V3Trade } from '@uniswap/v3-sdk'
 import { NetworkAlert } from 'components/NetworkAlert/NetworkAlert'
-import SwapDetailsDropdown from 'components/swap/SwapDetailsDropdown'
+import SwapDetailsDropdown, { Spinner } from 'components/swap/SwapDetailsDropdown'
 import UnsupportedCurrencyFooter from 'components/swap/UnsupportedCurrencyFooter'
 import { MouseoverTooltip } from 'components/Tooltip'
 import useActiveWeb3React from 'hooks/useActiveWeb3React'
 import { useSwapCallback } from 'hooks/useSwapCallback'
-import { useSwingSwapCallback } from 'hooks/useSwingSwapCallback'
 import useTransactionDeadline from 'hooks/useTransactionDeadline'
 import JSBI from 'jsbi'
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
@@ -64,6 +63,12 @@ import ReceiverNetworkSelector from './ReceiverNetworkSelector'
 import { TransactionSwap } from 'state/routing/types'
 import swingApi from '../../lib/swingApi'
 import tryParseCurrencyAmount from '../../lib/utils/tryParseCurrencyAmount'
+import { useSwingGetQuoteQuery } from 'state/routing/sliceSwingJs'
+import { skipToken } from '@reduxjs/toolkit/query/react'
+import { CHAIN_IDS_TO_NAMES, SupportedChainId } from 'constants/chains'
+import { ethers } from 'ethers'
+import AvailableRoutes from './bridge/AvailableRoutes'
+import RoutesWrapper from './bridge/RoutesWrapper'
 
 const AlertWrapper = styled.div`
   max-width: 460px;
@@ -376,32 +381,108 @@ export default function Swap({ history }: RouteComponentProps) {
   // This causes too many rerenders:
   // const swingRoutes = useSwingSwapCallback(recipient)
 
-  const [swingRoutes, setSwingRoutes] = useState<any>()
+  const [swingArgs, setSwingArgs] = useState<any>(skipToken)
+
+  // useEffect(() => {
+  //   console.log('🚀 ~ file: index.tsx ~ line 392 ~ useEffect ~ loadedInputCurrency', loadedInputCurrency)
+  //   console.log('🚀 ~ file: index.tsx ~ line 392 ~ useEffect ~ loadedInputCurrency', typedValue)
+  //   console.log('🚀 ~ file: index.tsx ~ line 392 ~ useEffect ~ loadedInputCurrency', formattedAmounts)
+  // }, [loadedInputCurrency, typedValue, formattedAmounts])
+  // useEffect(() => {
+  //   if (account && typedValue) {
+  //     setSwingArgs({
+  //       fromChain: CHAIN_IDS_TO_NAMES[chainId],
+  //       fromChainId: chainId,
+  //       fromTokenAddress: loadedInputCurrency.wrapped.address
+  //       fromUserAddress: account,
+  //       toChain: CHAIN_IDS_TO_NAMES[receiverChainId]
+  //       toChainId: receiverChainId,
+  //       tokenAmount: typedValue, // to Wei
+  // tokenSymbol: loadedInputCurrency.wrapped.symbol
+  //     })
+  //   } else {
+  //     setSwingArgs(skipToken)
+  //   }
+  // }, [account, typedValue])
+
+  function mainnet2ethereum(chain: string) {
+    return chain === 'mainnet' ? 'ethereum' : chain
+  }
+
   useEffect(() => {
-    if (chainId !== receiverChainId && loadedInputCurrency !== undefined && typedValue) {
-      const res = swingApi.getQuote(
-        // recipient,
-        chainId,
-        loadedInputCurrency?.symbol,
-        loadedInputCurrency?.symbol,
-        typedValue
-      )
-      setSwingRoutes(res)
+    if (chainId !== undefined && chainId !== receiverChainId && loadedInputCurrency !== undefined && typedValue) {
+      console.log("🚀 ~ file: index.tsx ~ line 414 ~ useEffect ~ loadedInputCurrency", loadedInputCurrency)
+      console.log("🚀 ~ file: index.tsx ~ line 414 ~ useEffect ~ chainId", chainId)
+      if (account && loadedInputCurrency) {
+        setSwingArgs({
+          fromChain: mainnet2ethereum(CHAIN_IDS_TO_NAMES[chainId as SupportedChainId]),
+          fromChainId: chainId,
+          fromTokenAddress: loadedInputCurrency.wrapped.address,
+          fromUserAddress: account,
+          toChain: mainnet2ethereum(CHAIN_IDS_TO_NAMES[receiverChainId as SupportedChainId]),
+          toChainId: receiverChainId,
+          tokenAmount: ethers.utils.parseEther(typedValue.toString()).toString(), // to Wei
+          tokenSymbol: loadedInputCurrency.wrapped.symbol,
+          // fromChain: 'ethereum',
+          // fromChainId: '1',
+          // fromTokenAddress: '0x0000000000000000000000000000000000000000',
+          // fromUserAddress: '0x3ECC53F7Ba45508483379bd76989A3003E6cbf09',
+          // toChain: 'polygon',
+          // toChainId: '137',
+          // tokenAmount: 11,
+          // tokenSymbol: 'ETH',
+        })
+      } else {
+        setSwingArgs(skipToken)
+      }
     }
   }, [chainId, receiverChainId, loadedInputCurrency, loadedOutputCurrency, typedValue])
 
+  const {
+    isLoading,
+    isError,
+    data: swingQuote,
+    error,
+  } = useSwingGetQuoteQuery(swingArgs, {
+    pollingInterval: 0,
+    refetchOnFocus: true,
+  })
+
+  useEffect(() => {
+    console.log(
+      '🚀 ~ file: index.tsx ~ line 397 ~ Swap ~ isLoading, isError, data, currentData, error',
+      isLoading,
+      isError,
+      swingQuote,
+      error
+    )
+  }, [isLoading, isError, swingQuote, error])
+
+  // useEffect(() => {
+  //   if (chainId !== receiverChainId && loadedInputCurrency !== undefined && typedValue) {
+  //     const res = swingApi.getNewQuote(
+  //       recipient
+  //       // chainId,
+  //       // loadedInputCurrency?.symbol,
+  //       // loadedInputCurrency?.symbol,
+  //       // typedValue
+  //     )
+  //     console.log('🚀 ~ file: index.tsx ~ line 389 ~ useEffect ~ res', res)
+  //     setSwingRoutes(res)
+  //   }
+  // }, [chainId, receiverChainId, loadedInputCurrency, loadedOutputCurrency, typedValue])
+
   function handleSwingSwap() {
-    if (swingRoutes !== undefined) {
-      const txHash = swingApi.getSwap(
-        account,
-        swingRoutes,
-        chainId,
-        loadedInputCurrency?.symbol,
-        loadedInputCurrency?.symbol,
-        typedValue
-      )
-      console.log('🚀 ~ file: index.tsx ~ line 407 ~ handleSwingSwap ~ txHash', txHash)
-    }
+    // if (swingRoutes !== undefined) {
+    //   const txHash = swingApi.getSwap(
+    //     account,
+    //     swingRoutes,
+    //     chainId,
+    //     loadedInputCurrency?.symbol,
+    //     loadedInputCurrency?.symbol,
+    //     typedValue
+    //   )
+    console.log('🚀 ~ file: index.tsx ~ line 407 ~ handleSwingSwap ~ txHash', swingQuote)
   }
 
   // const handleSwingSwap = useCallback(() => {
@@ -691,16 +772,9 @@ export default function Swap({ history }: RouteComponentProps) {
                       <Trans>Swing Swap</Trans>
                     </Text>
                   </ButtonError>
-                  <MockAvailableRoutes
-                    fromAmount={typedValue}
-                    toAddress={account}
-                    fromAddress={account}
-                    toChain={chainId}
-                    fromChain={receiverChainId}
-                  />
+                  {!isLoading && <RoutesWrapper typedValue={typedValue} swingQuote={swingQuote} />}
                 </div>
               ) : (
-                // <AvailableRoutes isLoading={isLoading} isError={isError} data={data} currentData={currentData} error={error} />
                 <ButtonError
                   onClick={() => {
                     if (chainId !== receiverChainId) {

@@ -31,10 +31,11 @@ const TokenNetworkRouteBox = ({ info }) => {
             <div>
               {/* <div className="symbol">{info.token.symbol}</div> */}
               <div className="amount">{limitDecimalNumbers(info?.amount)}</div>
+              {/* <div className="amount">{info?.amount}</div> */}
             </div>
           </div>
           <div className="network-name" >
-            <div className="text">{info?.network?.label}</div>
+            <div className="text">{info?.network?.slug}</div>
           </div>
         </div>
       )}

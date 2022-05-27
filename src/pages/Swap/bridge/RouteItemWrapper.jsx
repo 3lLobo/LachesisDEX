@@ -25,8 +25,8 @@ export default function RouteItemWrapper(props) {
         type="radio"
         id={'control_' + props.index}
         name="select"
-        value={props.data?.transactionId}
-        onChange={props.handleChange}
+        value={props.index}
+        onChange={(e) => props.handleChange(e)}
         defaultChecked={props.index === 0}
       />
       <label htmlFor={'control_' + props.index}>

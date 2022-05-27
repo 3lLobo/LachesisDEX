@@ -2,6 +2,7 @@ import React from 'react';
 import "./bridge.scss"
 import styled from 'styled-components/macro'
 
+
 const StyledHeader = styled.div`
     display: flex;
     flex-direction: row;
@@ -32,7 +33,7 @@ const AdditionalInfoItem = ({ info }) => {
       <StyledHeader className="additional-info">
         <StyledText className="fee-wrapper">
           <span className="title">Fees</span>
-          <span className="value">{info.bridgeFee}</span>
+          <span className="value">{info.fee}</span>
         </StyledText>
         <StyledText className="duration-wrapper">
           <span className="title">Duration</span>

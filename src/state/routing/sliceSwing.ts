@@ -44,17 +44,25 @@ export const routingSwingApi = createApi({
 
         try {
           const query = qs.stringify({
-            tokenAmount,
-            fromChain,
-            fromChainId,
-            fromTokenAddress,
+            // tokenAmount,
+            // fromChain,
+            // fromChainId,
+            // fromTokenAddress,
+            // fromUserAddress,
+            // toChain,
+            // toChainId,
+            // tokenSymbol,
+            // toTokenAddress,
+            // toTokenSymbol,
+            // toUserAddress,
+            fromChain: 'ethereum',
+            fromChainId: '1',
+            fromTokenAddress: '0x0000000000000000000000000000000000000000',
             fromUserAddress,
-            toChain,
-            toChainId,
-            tokenSymbol,
-            toTokenAddress,
-            toTokenSymbol,
-            toUserAddress,
+            toChain: 'polygon',
+            toChainId: '137',
+            tokenAmount: 11,
+            tokenSymbol: 'ETH'
           })
           result = await fetch(`quote?${query}`)
 
