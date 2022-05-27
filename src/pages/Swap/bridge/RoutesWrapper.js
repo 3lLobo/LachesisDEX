@@ -1,21 +1,83 @@
 import AvailableRoutes from './AvailableRoutes'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useSwingPostSwapMutation } from 'state/routing/sliceSwingJs'
+import { skipToken } from '@reduxjs/toolkit/dist/query'
+import styled, { keyframes, useTheme } from 'styled-components/macro'
 
-export default function RoutesWrapper({ swingQuote, typedValue }) {
+const rotate360 = keyframes`
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+`
+
+export const Spinner = styled.div`
+  display: flex;
+  align-items: center;
+  animation: ${rotate360} 1s cubic-bezier(0.83, 0, 0.17, 1) infinite;
+  transform: translateZ(0);
+  border-top: 1px solid transparent;
+  border-right: 1px solid transparent;
+  border-bottom: 1px solid transparent;
+  border-left: 2px solid ${({ theme }) => theme.text1};
+  background: transparent;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  /* position: relative; */
+  transition: 250ms ease border-color;
+  margin: 21px;
+  padding: 36px;
+  /* left: 23px;
+  top: 23px; */
+`
+
+const StyledSpinnerWrapper = styled.div`
+  display: flex;
+  align-items: center;
+    padding-left: 170px
+`
+export default function RoutesWrapper({ swingQuote, setSwingTx, swingQuoteArgs, typedValue, isLoading }) {
+    const theme = useTheme()
+    const [swingArgs, setSwingArgs] = useState(skipToken)
+
+    const [trigger, { isLoading: isLoadingTx, data: swingTx }] = useSwingPostSwapMutation()
+
+    useEffect(() => {
+        console.log('🚀 ~ file: RoutesWrapper.js ~ line 14 ~ RoutesWrapper ~ mutationState', swingTx)
+    }, [swingTx])
+
+    useEffect(() => {
+        if (!isLoading && swingTx !== undefined) {
+            setSwingTx(swingTx)
+        }
+    }, [swingTx, isLoading])
 
     const handleChange = (e) => {
-        const routeIndex = e.target.value;
+        const routeIndex = e.target.value
         if (swingQuote !== undefined) {
-            const chosenRoute = swingQuote.routes[routeIndex];
-            console.log("🚀 ~ file: RoutesWrapper.js ~ line 10 ~ handleChange ~ chosenRoute", chosenRoute.route[0])
+            const chosenRoute = swingQuote.routes[routeIndex]?.route[0]
+            const newArgs = {
+                ...swingQuoteArgs,
+                route: [chosenRoute],
+            }
+            setSwingArgs(newArgs)
+            trigger(newArgs)
         }
     }
     return (
-        <div className="App">
-            {swingQuote !== undefined && <AvailableRoutes
-                {...swingQuote} fromAmount={typedValue}
-                handleChange={handleChange}
-            />}
+        <div>
+            {isLoading
+                ? <StyledSpinnerWrapper><Spinner /></StyledSpinnerWrapper>
+                :
+                <div>
+                    {swingQuote !== undefined &&
+                        <AvailableRoutes {...swingQuote} fromAmount={typedValue} handleChange={handleChange} />
+                    }
+                </div>
+            }
         </div>
     )
 }

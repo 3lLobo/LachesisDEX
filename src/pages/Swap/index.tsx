@@ -69,6 +69,7 @@ import { CHAIN_IDS_TO_NAMES, SupportedChainId } from 'constants/chains'
 import { ethers } from 'ethers'
 import AvailableRoutes from './bridge/AvailableRoutes'
 import RoutesWrapper from './bridge/RoutesWrapper'
+import { extractTokenInfo } from './swingUtils'
 
 const AlertWrapper = styled.div`
   max-width: 460px;
@@ -377,52 +378,27 @@ export default function Swap({ history }: RouteComponentProps) {
   ])
 
   // TODO: Fix SWING part.
-
-  // This causes too many rerenders:
-  // const swingRoutes = useSwingSwapCallback(recipient)
-
   const [swingArgs, setSwingArgs] = useState<any>(skipToken)
 
-  // useEffect(() => {
-  //   console.log('🚀 ~ file: index.tsx ~ line 392 ~ useEffect ~ loadedInputCurrency', loadedInputCurrency)
-  //   console.log('🚀 ~ file: index.tsx ~ line 392 ~ useEffect ~ loadedInputCurrency', typedValue)
-  //   console.log('🚀 ~ file: index.tsx ~ line 392 ~ useEffect ~ loadedInputCurrency', formattedAmounts)
-  // }, [loadedInputCurrency, typedValue, formattedAmounts])
-  // useEffect(() => {
-  //   if (account && typedValue) {
-  //     setSwingArgs({
-  //       fromChain: CHAIN_IDS_TO_NAMES[chainId],
-  //       fromChainId: chainId,
-  //       fromTokenAddress: loadedInputCurrency.wrapped.address
-  //       fromUserAddress: account,
-  //       toChain: CHAIN_IDS_TO_NAMES[receiverChainId]
-  //       toChainId: receiverChainId,
-  //       tokenAmount: typedValue, // to Wei
-  // tokenSymbol: loadedInputCurrency.wrapped.symbol
-  //     })
-  //   } else {
-  //     setSwingArgs(skipToken)
-  //   }
-  // }, [account, typedValue])
-
-  function mainnet2ethereum(chain: string) {
-    return chain === 'mainnet' ? 'ethereum' : chain
-  }
-
   useEffect(() => {
-    if (chainId !== undefined && chainId !== receiverChainId && loadedInputCurrency !== undefined && typedValue) {
-      console.log("🚀 ~ file: index.tsx ~ line 414 ~ useEffect ~ loadedInputCurrency", loadedInputCurrency)
-      console.log("🚀 ~ file: index.tsx ~ line 414 ~ useEffect ~ chainId", chainId)
-      if (account && loadedInputCurrency) {
+    function mainnet2ethereum(chain: string) {
+      return chain === 'mainnet' ? 'ethereum' : chain
+    }
+    if (chainId !== undefined && chainId !== receiverChainId && currencies[Field.INPUT] !== undefined && typedValue) {
+      console.log('🚀 ~ file: index.tsx ~ line 414 ~ useEffect ~ loadedInputCurrency', currencies[Field.INPUT])
+      // console.log('🚀 ~ file: index.tsx ~ line 414 ~ useEffect ~ chainId', chainId)
+      if (account && currencies[Field.INPUT]) {
+        const { fromTokenAddress, tokenSymbol, tokenDecimals } = extractTokenInfo(currencies[Field.INPUT])
+
         setSwingArgs({
           fromChain: mainnet2ethereum(CHAIN_IDS_TO_NAMES[chainId as SupportedChainId]),
           fromChainId: chainId,
-          fromTokenAddress: loadedInputCurrency.wrapped.address,
+          fromTokenAddress,
           fromUserAddress: account,
           toChain: mainnet2ethereum(CHAIN_IDS_TO_NAMES[receiverChainId as SupportedChainId]),
           toChainId: receiverChainId,
-          tokenAmount: ethers.utils.parseEther(typedValue.toString()).toString(), // to Wei
-          tokenSymbol: loadedInputCurrency.wrapped.symbol,
+          tokenAmount: ethers.utils.parseUnits(typedValue, tokenDecimals).toString(), // to Wei
+          tokenSymbol,
           // fromChain: 'ethereum',
           // fromChainId: '1',
           // fromTokenAddress: '0x0000000000000000000000000000000000000000',
@@ -436,10 +412,11 @@ export default function Swap({ history }: RouteComponentProps) {
         setSwingArgs(skipToken)
       }
     }
-  }, [chainId, receiverChainId, loadedInputCurrency, loadedOutputCurrency, typedValue])
+  }, [chainId, receiverChainId, currencies, typedValue])
 
   const {
     isLoading,
+    isFetching,
     isError,
     data: swingQuote,
     error,
@@ -458,31 +435,27 @@ export default function Swap({ history }: RouteComponentProps) {
     )
   }, [isLoading, isError, swingQuote, error])
 
-  // useEffect(() => {
-  //   if (chainId !== receiverChainId && loadedInputCurrency !== undefined && typedValue) {
-  //     const res = swingApi.getNewQuote(
-  //       recipient
-  //       // chainId,
-  //       // loadedInputCurrency?.symbol,
-  //       // loadedInputCurrency?.symbol,
-  //       // typedValue
-  //     )
-  //     console.log('🚀 ~ file: index.tsx ~ line 389 ~ useEffect ~ res', res)
-  //     setSwingRoutes(res)
-  //   }
-  // }, [chainId, receiverChainId, loadedInputCurrency, loadedOutputCurrency, typedValue])
-
+  const [swingTx, setSwingTx] = useState<any>()
   function handleSwingSwap() {
-    // if (swingRoutes !== undefined) {
-    //   const txHash = swingApi.getSwap(
-    //     account,
-    //     swingRoutes,
-    //     chainId,
-    //     loadedInputCurrency?.symbol,
-    //     loadedInputCurrency?.symbol,
-    //     typedValue
-    //   )
-    console.log('🚀 ~ file: index.tsx ~ line 407 ~ handleSwingSwap ~ txHash', swingQuote)
+    async function signSwingSwap() {
+      if (swingTx !== undefined) {
+        const { from: fromApprove, to: toApprove, data: swingTxData } = swingTx
+        console.log('🚀 ~ file: index.tsx ~ line 443 ~ signSwingSwap ~ swingTx', swingTx)
+        // try {
+        //   const txHash = await window.ethereum.request({
+        //     method: 'eth_sendTransaction',
+        //     params: [{ swingTxData, to: toApprove, from: fromApprove }],
+        //   });
+        //   return txHash;
+        // } catch (e) {
+        //   console.log('error', e);
+        // }
+      }
+    }
+    if (swingTx !== undefined) {
+      console.log('🚀 ~ file: index.tsx ~ line 438 ~ handleSwingSwap ~ swingTx', swingTx)
+      signSwingSwap()
+    }
   }
 
   // const handleSwingSwap = useCallback(() => {
@@ -772,7 +745,13 @@ export default function Swap({ history }: RouteComponentProps) {
                       <Trans>Swing Swap</Trans>
                     </Text>
                   </ButtonError>
-                  {!isLoading && <RoutesWrapper typedValue={typedValue} swingQuote={swingQuote} />}
+                  <RoutesWrapper
+                    setSwingTx={setSwingTx}
+                    typedValue={typedValue}
+                    swingQuote={swingQuote}
+                    swingQuoteArgs={swingArgs}
+                    isLoading={isFetching}
+                  />
                 </div>
               ) : (
                 <ButtonError

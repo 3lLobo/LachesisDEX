@@ -27,7 +27,7 @@ export default function RouteItemWrapper(props) {
         name="select"
         value={props.index}
         onChange={(e) => props.handleChange(e)}
-        defaultChecked={props.index === 0}
+        // defaultChecked={props.index === 0}
       />
       <label htmlFor={'control_' + props.index}>
         <RouteItemView data={routeItem} />

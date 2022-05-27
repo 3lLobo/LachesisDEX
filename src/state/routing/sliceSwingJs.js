@@ -8,6 +8,7 @@ export const swingApi = createApi({
   baseQuery: fetchBaseQuery({
     baseUrl: 'https://swap.dev.swing.xyz/v0/transfer/',
   }),
+  tagTypes: ['Posts'],
   endpoints: (builder) => ({
     swingGetQuote: builder.query({
       query: (
@@ -32,44 +33,54 @@ export const swingApi = createApi({
       //   maxRetries: 0,
       // },
     }),
-    // swingGetAllowance: builder.query({
-    //   query: (args) => {
-    //     const query = qs.stringify(args);
-    //     return `allowance?${query}`
-    //   }
-    // }),
-    // swingGetApprove: builder.query({
-    //   query: (args) => {
-    //     const query = qs.stringify(args);
-    //     return `approve?${query}`
-    //   }
-    // }),
-    // swingPostSwap: builder.query({
-    //   query: (args) => {
-    //     const body = JSON.stringify(args);
-    //     return {
-    //       url: `send`,
-    //       method: 'POST',
-    //       headers: {
-    //         "Content-Type": "application/json"
-    //       },
-    //       body
-    //     }
-    //   }
-    // }),
-    // swingGetConfig: builder.query({
-    //   query: () => {
-    //     return `config`
-    //   }
-    // }),
+    swingGetAllowance: builder.query({
+      query: (args) => {
+        const query = qs.stringify(args);
+        return `allowance?${query}`
+      }
+    }),
+    swingGetApprove: builder.query({
+      query: (args) => {
+        const query = qs.stringify(args);
+        return `approve?${query}`
+      }
+    }),
+    swingPostSwap: builder.mutation({
+      query(body) {
+        const stringBody = JSON.stringify(body);
+        return {
+          url: 'send',
+          method: 'POST',
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: body,
+        }
+      },
+      invalidatesTags: [{ type: 'Posts', id: 'LIST' }],
+      // query: (args) => ({
+      //   url: `send`,
+      //   method: 'POST',
+      //   headers: {
+      //     "Content-Type": "application/json"
+      //   },
+      //   body: args,
+      // }),
+      // invalidatesTags: ['Posts'],
+    }),
+    swingGetConfig: builder.query({
+      query: () => {
+        return `config`
+      }
+    }),
 
   }),
 })
 
 export const {
   useSwingGetQuoteQuery,
-  // useSwingGetAllowanceQuery,
-  // useSwingGetApproveQuery,
-  // useSwingPostSwapQuery,
-  // useSwingGetConfigQuery
+  useSwingGetAllowanceQuery,
+  useSwingGetApproveQuery,
+  useSwingPostSwapMutation,
+  useSwingGetConfigQuery,
 } = swingApi

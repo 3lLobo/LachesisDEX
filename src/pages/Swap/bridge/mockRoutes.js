@@ -15,7 +15,7 @@ export const realRoutes = [
             bridge: 'hop',
             bridgeTokenAddress: '0x0000000000000000000000000000000000000000',
             name: 'USDC',
-            part: 100
+            part: 100,
           },
         ],
       },
