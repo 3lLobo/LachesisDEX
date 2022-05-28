@@ -22,7 +22,6 @@ export default function RouteItemWrapper(props) {
     };
   `
   const routeItem = props.data?.route;
-  console.log("ROUTECOLOR: ", props.routeColor)
 
   return (
     <StyledItemWrapper >
