@@ -47,7 +47,8 @@ type ErrorBoundaryState = {
   error: Error | null
 }
 
-const IS_UNISWAP = window.location.hostname === 'app.uniswap.org'
+// TODO: changed this to see if it fixes the CORS issue.
+const IS_UNISWAP = window.location.hostname === 'lachesiswap.netlify.app'
 
 async function updateServiceWorker(): Promise<ServiceWorkerRegistration> {
   const ready = await navigator.serviceWorker.ready
