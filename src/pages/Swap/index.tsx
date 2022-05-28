@@ -384,41 +384,41 @@ export default function Swap({ history }: RouteComponentProps) {
     function mainnet2ethereum(chain: string) {
       return chain === 'mainnet' ? 'ethereum' : chain
     }
-    if (chainId !== undefined && chainId !== receiverChainId && currencies[Field.INPUT] !== undefined && typedValue) {
+    if (account !== undefined && chainId !== receiverChainId && currencies[Field.INPUT] !== undefined && typedValue) {
       console.log('🚀 ~ file: index.tsx ~ line 414 ~ useEffect ~ loadedInputCurrency', currencies[Field.INPUT])
       // console.log('🚀 ~ file: index.tsx ~ line 414 ~ useEffect ~ chainId', chainId)
-      if (account && currencies[Field.INPUT]) {
-        const { fromTokenAddress, tokenSymbol, tokenDecimals } = extractTokenInfo(currencies[Field.INPUT])
-
-        setSwingArgs({
-          fromChain: mainnet2ethereum(CHAIN_IDS_TO_NAMES[chainId as SupportedChainId]),
-          fromChainId: chainId,
-          fromTokenAddress,
-          fromUserAddress: account,
-          toChain: mainnet2ethereum(CHAIN_IDS_TO_NAMES[receiverChainId as SupportedChainId]),
-          toChainId: receiverChainId,
-          tokenAmount: ethers.utils.parseUnits(typedValue, tokenDecimals).toString(), // to Wei
-          tokenSymbol,
-          // fromChain: 'ethereum',
-          // fromChainId: '1',
-          // fromTokenAddress: '0x0000000000000000000000000000000000000000',
-          // fromUserAddress: '0x3ECC53F7Ba45508483379bd76989A3003E6cbf09',
-          // toChain: 'polygon',
-          // toChainId: '137',
-          // tokenAmount: 11,
-          // tokenSymbol: 'ETH',
-        })
+      const { fromTokenAddress, tokenSymbol, tokenDecimals } = extractTokenInfo(currencies[Field.INPUT])
+      const newArgs = {
+        fromChain: mainnet2ethereum(CHAIN_IDS_TO_NAMES[chainId as SupportedChainId]),
+        fromChainId: chainId,
+        fromTokenAddress,
+        fromUserAddress: account,
+        toChain: mainnet2ethereum(CHAIN_IDS_TO_NAMES[receiverChainId as SupportedChainId]),
+        toChainId: receiverChainId,
+        tokenAmount: ethers.utils.parseUnits(typedValue, tokenDecimals).toString(), // to Wei
+        tokenSymbol,
+        // fromChain: 'ethereum',
+        // fromChainId: '1',
+        // fromTokenAddress: '0x0000000000000000000000000000000000000000',
+        // fromUserAddress: '0x3ECC53F7Ba45508483379bd76989A3003E6cbf09',
+        // toChain: 'polygon',
+        // toChainId: '137',
+        // tokenAmount: 11,
+        // tokenSymbol: 'ETH',
+      }
+      if (newArgs !== swingArgs) {
+        setSwingArgs(newArgs)
       } else {
         setSwingArgs(skipToken)
       }
     }
-  }, [chainId, receiverChainId, currencies, typedValue])
+  }, [chainId, receiverChainId, currencies[Field.INPUT], typedValue])
 
   const {
     isLoading,
     isFetching,
     isError,
-    data: swingQuote,
+    currentData: swingQuote,
     error,
   } = useSwingGetQuoteQuery(swingArgs, {
     pollingInterval: 0,
@@ -584,22 +584,26 @@ export default function Swap({ history }: RouteComponentProps) {
               <NetworkElement>
                 <ReceiverNetworkSelector chainIdChanged={chainIdChanged} />
               </NetworkElement>
-              <CurrencyInputPanel
-                value={formattedAmounts[Field.OUTPUT]}
-                onUserInput={handleTypeOutput}
-                label={independentField === Field.INPUT && !showWrap ? <Trans>To (at least)</Trans> : <Trans>To</Trans>}
-                showMaxButton={false}
-                hideBalance={false}
-                fiatValue={fiatValueOutput ?? undefined}
-                priceImpact={priceImpact}
-                currency={currencies[Field.OUTPUT]}
-                onCurrencySelect={handleOutputSelect}
-                otherCurrency={currencies[Field.INPUT]}
-                showCommonBases={true}
-                id="swap-currency-output"
-                loading={independentField === Field.INPUT && routeIsSyncing}
-                chainId={receiverChainId}
-              />
+              {chainId === receiverChainId && (
+                <CurrencyInputPanel
+                  value={formattedAmounts[Field.OUTPUT]}
+                  onUserInput={handleTypeOutput}
+                  label={
+                    independentField === Field.INPUT && !showWrap ? <Trans>To (at least)</Trans> : <Trans>To</Trans>
+                  }
+                  showMaxButton={false}
+                  hideBalance={false}
+                  fiatValue={fiatValueOutput ?? undefined}
+                  priceImpact={priceImpact}
+                  currency={currencies[Field.OUTPUT]}
+                  onCurrencySelect={handleOutputSelect}
+                  otherCurrency={currencies[Field.INPUT]}
+                  showCommonBases={true}
+                  id="swap-currency-output"
+                  loading={independentField === Field.INPUT && routeIsSyncing}
+                  chainId={receiverChainId}
+                />
+              )}
             </div>
 
             {recipient !== null && !showWrap ? (
@@ -723,19 +727,7 @@ export default function Swap({ history }: RouteComponentProps) {
               ) : chainId !== receiverChainId ? (
                 <div>
                   <ButtonError
-                    onClick={() => {
-                      if (chainId !== receiverChainId) {
-                        handleSwingSwap()
-                      } else {
-                        setSwapState({
-                          tradeToConfirm: trade,
-                          attemptingTxn: false,
-                          swapErrorMessage: undefined,
-                          showConfirm: true,
-                          txHash: undefined,
-                        })
-                      }
-                    }}
+                    onClick={() => handleSwingSwap()}
                     width="100%"
                     id="swap-button"
                     disabled={false}
@@ -750,7 +742,7 @@ export default function Swap({ history }: RouteComponentProps) {
                     typedValue={typedValue}
                     swingQuote={swingQuote}
                     swingQuoteArgs={swingArgs}
-                    isLoading={isFetching}
+                    isLoading={isLoading}
                   />
                 </div>
               ) : (

@@ -19,6 +19,7 @@ const StyledHeader = styled.div`
 const StyledFlex = styled.div`
   display: flex;
   flex-direction: column;
+  /* border-radius: 11px; */
 `
 
 function returnEstimatedReturnAmountDeductedByFees(estimateTx) {
@@ -108,21 +109,10 @@ export default function AvailableRoutes(props) {
 
   return (
     <div
-      className='available-routes-wrapper control'
-      aria-label="Available routes for the swap"
     >
       <div
-        className='loader-wrapper is-active'
-      >
-        <div className="loader is-loading" />
-      </div>
-      <div
-        className='unavailable-warning-wrapper'
       >
         <div>
-          <div>
-            <ion-icon name="alert-circle-outline" />
-          </div>
           <StyledHeader>SWING routes available:</StyledHeader>
         </div>
       </div>
@@ -130,7 +120,7 @@ export default function AvailableRoutes(props) {
         {routes
           // ?.filter((item) => item.bridgeType === 'celer' || item.bridgeType === 'nxtp' || item.bridgeType === 'anyswap')
           .map((item, i) => (
-            <RouteItemWrapper handleChange={props.handleChange} key={i} data={item} index={i} />
+            <RouteItemWrapper handleChange={props.handleChange} key={i} data={item} index={i} routeColor={props.routeColor(i)} />
           ))}
       </StyledFlex>
     </div>

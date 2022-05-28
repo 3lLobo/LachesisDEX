@@ -3,7 +3,6 @@ import SwapRouteBox from './SwapRouteBox';
 import AdditionalInfoItem from './AdditionalInfoItem';
 import DashedDivider from './DashedDivider';
 import { CHAIN_INFO } from '../../../constants/chainInfo.ts'
-import "./bridge.scss"
 import styled from 'styled-components/macro'
 
 

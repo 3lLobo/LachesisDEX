@@ -39,15 +39,37 @@ const StyledSpinnerWrapper = styled.div`
   align-items: center;
     padding-left: 170px
 `
+
 export default function RoutesWrapper({ swingQuote, setSwingTx, swingQuoteArgs, typedValue, isLoading }) {
+
     const theme = useTheme()
     const [swingArgs, setSwingArgs] = useState(skipToken)
+    const [activeIndex, setActiveIndex] = useState()
+    const [trigger, { isLoading: isLoadingTx, data: swingTx, isError }] = useSwingPostSwapMutation()
 
-    const [trigger, { isLoading: isLoadingTx, data: swingTx }] = useSwingPostSwapMutation()
+    const routeColor = (i) => {
+        var color;
+        if (i.toString() === activeIndex) {
+            if (!isLoadingTx && !isError) {
+                /* green */
+                color = 'rgb(136, 176, 75, 0.9)'
+            } else if (isLoadingTx) {
+                /* blue */
+                color = 'rgb(107, 91, 149)'
+            } else {
+                /* red */
+                color = 'rgb(210, 56, 108, 0.8)'
+            }
+        } else {
+            color = 'transparent'
+        }
+        return color
+    }
 
-    useEffect(() => {
+
+    /* useEffect(() => {
         console.log('🚀 ~ file: RoutesWrapper.js ~ line 14 ~ RoutesWrapper ~ mutationState', swingTx)
-    }, [swingTx])
+    }, [swingTx]) */
 
     useEffect(() => {
         if (!isLoading && swingTx !== undefined) {
@@ -57,6 +79,7 @@ export default function RoutesWrapper({ swingQuote, setSwingTx, swingQuoteArgs, 
 
     const handleChange = (e) => {
         const routeIndex = e.target.value
+        setActiveIndex(routeIndex)
         if (swingQuote !== undefined) {
             const chosenRoute = swingQuote.routes[routeIndex]?.route[0]
             const newArgs = {
@@ -74,7 +97,7 @@ export default function RoutesWrapper({ swingQuote, setSwingTx, swingQuoteArgs, 
                 :
                 <div>
                     {swingQuote !== undefined &&
-                        <AvailableRoutes {...swingQuote} fromAmount={typedValue} handleChange={handleChange} />
+                        <AvailableRoutes {...swingQuote} fromAmount={typedValue} handleChange={handleChange} routeColor={routeColor} />
                     }
                 </div>
             }
