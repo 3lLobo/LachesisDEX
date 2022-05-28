@@ -52,13 +52,13 @@ export default function RoutesWrapper({ swingQuote, setSwingTx, swingQuoteArgs, 
         if (i.toString() === activeIndex) {
             if (!isLoadingTx && !isError) {
                 /* green */
-                color = 'rgb(136, 176, 75, 0.9)'
+                color = 'rgb(136, 211, 111, 0.9)'
             } else if (isLoadingTx) {
                 /* blue */
                 color = 'rgb(107, 91, 149)'
             } else {
                 /* red */
-                color = 'rgb(210, 56, 108, 0.8)'
+                color = 'rgb(210, 56, 108, 0.69)'
             }
         } else {
             color = 'transparent'

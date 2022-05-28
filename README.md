@@ -14,9 +14,12 @@ Submission project for HackTheMoney | ETHGlobal 2022
 # About the app
 
 
-We build a decentralized exchange for cross chain swaps. This way users will be equipped to swap any token from any chain, in short - An Interchain DEX. We deployed the Uniswap factoryV3 on Fantom testnet to take advantage of Lachesis Consensus but the tokens haven't been confirmed yet. 
+We build a decentralized exchange for cross chain swaps, allowing users to swap any token from any chain, in short - An Interchain DEX. 
 
-Polygon Mumbai offers deployed uniswap contract and verified token addresses. Thus we use this chain for demonstration purposes. 
+The popular exchange [Uniswap](https://uniswap.org/) is our starting point for the DEX, which we augment by implementing cross-chain compatibility powered by the SWING api.
+The first brick is laid by deploying the Uniswap FactoryV3 contract on Fantom.
+
+Considering the lack of initial liquidity and for the scope of this hackathon, we continue our project on Polygon Mumbai, where the Uniswap contracts are officially deployed and liquidity for 3 token pairs is available. Polygon shares similarity with Fantom by using the PoS consensus, yet it does not provide the asynchronous aspect of the Lachesis algorithm.
 
 ## Why Lachesis ?
 
@@ -32,33 +35,39 @@ malicious nodes.
 Final: Lachesis's output can be used immediately. Transactions are confirmed within 1-2 seconds.
 ```
 
-## Interchain swaps using Bridge
+## Interchain Swaps
+
+The [SWING api](https://swing.xyz/developers) finds the best & the most efficient bridge in terms of fees and duration. Using SWING, we provide cross-chain swaps and in the future prospect of inter-chain liquidity.
+Given the option to select a receiver network, the user can choose to swap his/her token to a different chain.
+
 
 ```
 Swing API v0 enables cross-chain token transfers and token swaps through Multichain(Anyswap), Wormhole,
 Celer Bridge, deBridge, Hop Bridge, Hyphen bridge, Connext(NXTP), Rainbow bridge, Synapse . 
 ```
-Thus , we use SWING API to find us the best & the most optimal bridge in terms of fees. Combined with Uniswap it would allow to swap to another chain and to use a shared interchain liquidity pool.
 
-## Data on Swaps & Liquidity 
+## Data Viz on Swaps & Machine Lacherning 
 
-A chart which displays the newest swaps above a certain threshold on the mainnet.
+For analytic purposes, we add an interactive dashboard which visualises in real time the swaps between tokens on Uniswap. The data is fetched from [TheGraph](https://thegraph.com/en/), specifically the UniswapV3 subgraph. For now the user can observe current trends, such as the momentary dump of alt-coins.
+In relation to an inter-chain liquidity pool, this data could be used to train ML models to predict demand/supply, avoid shortage and move liquidity when the bridge conditions are most favorable. 
 
 ![image](https://user-images.githubusercontent.com/70228821/169710275-d396cb31-5e75-4475-80b4-b5ea4e82bcff.png)
 
 
 ## Roadmap
 
-TheGraph offers us uniswap data.
-  - Build a subgraph which tracks all interchain swaps and liquidity.
-  - This allows to detect patterns and foresee pools running short in liquidity. 
+TheGraph:
+  - Build a subgraph which tracks all inter-chain swaps and liquidity.
+  - Brute-force pattern recognition. 
 
 Migrating to Fantom
   - Migrating uniswap liquidity pools to Fantom and bridge the swaped tokens.
+  - Facilitate migration to Fantom.
+  - alternative Idea: implement P2P swap with Lachesis algorithm.
 
 ## Fantom
 
-Deploying Uniswap contracts to Fantom testnet.
+Deploying Uniswap contracts to Fantom testnet. ✅
 
 UniswapV3Factory deployed to: `0x341EC1a1fc2480F400cf33fDc2aC5C95Bdaa3f37`
 
@@ -84,14 +93,22 @@ Fantom mainnet:
 ## L2blockchains & SWING API
 
 [PolygonZero](https://polygon.technology/solutions/polygon-zero/) and [codeBase](https://github.com/mir-protocol/plonky2)
+
 [Swing](https://swing.xyz/developers)
 
 
 ## Hooks & TheGraph
 
 [ETH-hooks](https://scaffold-eth.github.io/eth-hooks/)
+
 [TheGraph](https://thegraph.com/docs/en/developer/quick-start/)
 
 ## Pretty Badges
 
 [![Netlify Status](https://api.netlify.com/api/v1/badges/3e96c724-ddcd-4422-9728-3875f9f1fb81/deploy-status)](https://app.netlify.com/sites/lachesiswap/deploys)
+
+![GitHub language count](https://img.shields.io/github/languages/count/3lLobo/LachesisDEX?color=magenta)
+
+![GitHub top language](https://img.shields.io/github/languages/top/3lLobo/LachesisDEX?color=red)
+
+![Lines of code](https://img.shields.io/tokei/lines/github/3lLobo/LachesisDEX?color=orange)
