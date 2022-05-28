@@ -5,18 +5,22 @@ import "./bridge.scss"
 import styled from 'styled-components/macro'
 
 
-const StyledItemWrapper = styled.div`
-  /* height: 75px; */
-  display: flex;
-  flex-direction: row;
-  border-radius: 12px;
-  background-color: transparent;
-  align-items: center;
-  /* &:not(:last-child) {
-    margin-bottom: 12px;
-  } */
-`
+
 export default function RouteItemWrapper(props) {
+  const bgColor = props.routeColor
+  const StyledItemWrapper = styled.div`
+    /* height: 75px; */
+    display: flex;
+    flex-direction: row;
+    border-radius: 21px;
+    /* background-color: transparent; */
+    align-items: center;
+    background-color: ${bgColor};
+    padding: 6px;
+    &:not(:last-child) {
+      margin-bottom: 3px;
+    };
+  `
   const routeItem = props.data?.route;
 
   return (
@@ -25,12 +29,13 @@ export default function RouteItemWrapper(props) {
         type="radio"
         id={'control_' + props.index}
         name="select"
-        value={props.data?.transactionId}
-        onChange={props.handleChange}
-        defaultChecked={props.index === 0}
+        value={props.index}
+        onChange={(e) => props.handleChange(e)}
+      // onSelect={(e) => props.handleChange(e)}
+      // defaultChecked={props.index === 0}
       />
       <label htmlFor={'control_' + props.index}>
-        <RouteItemView data={routeItem} />
+        <RouteItemView data={routeItem} bgColor={props.routeColor} />
         {/* <RouteItemMobileView data={routeItem} /> */}
       </label>
     </StyledItemWrapper>

@@ -1,8 +1,9 @@
 import React from 'react';
-import "./bridge.scss"
+// import "./bridge.scss"
 // import Wallet from '../../../utils/wallet';
 import RouteItemWrapper from './RouteItemWrapper';
 import styled from 'styled-components/macro'
+import { ethers } from 'ethers';
 
 const StyledHeader = styled.div`
   font-size: 14px;
@@ -18,8 +19,33 @@ const StyledHeader = styled.div`
 const StyledFlex = styled.div`
   display: flex;
   flex-direction: column;
+  /* border-radius: 11px; */
 `
 
+function returnEstimatedReturnAmountDeductedByFees(estimateTx) {
+  let bridgeFee = ethers.utils.formatUnits(
+    estimateTx.quote?.bridgeFee,
+    estimateTx.quote?.decimals,
+  );
+  bridgeFee = Number.parseFloat(bridgeFee);
+
+  let destTxFee = estimateTx.quote?.destinationTxFee
+    ? ethers.utils.formatUnits(estimateTx.quote?.destinationTxFee, estimateTx.quote?.decimals)
+    : 0;
+  destTxFee = Number.parseFloat(destTxFee);
+
+  let returnAmount = ethers.utils.formatUnits(
+    estimateTx.quote?.amount,
+    estimateTx.quote?.decimals,
+  );
+
+  const totalFeeWithoutGas = bridgeFee + destTxFee;
+
+  // value being displayed to the users => return amount -  destinationTxFee - bridgeFee
+  const estimatedReturnAmountDeductedByFees = Number.parseFloat(returnAmount) - totalFeeWithoutGas;
+
+  return { estimatedReturnAmountDeductedByFees, totalFeeWithoutGas };
+}
 
 export default function AvailableRoutes(props) {
   const GENERIC_SUPPORTED_BRIDGE_TOKENS = ['USDC', 'USDT', 'DAI'];
@@ -31,14 +57,14 @@ export default function AvailableRoutes(props) {
     let targetBridgeToken = 'USDC';
 
     // value being displayed to the users => return amount -  desinationTxFee - bridgeFee
-    const totalFeeWithoutGas = -( v.destinationTxFee + v.bridgeFee) * Math.pow(10, -8) 
-    const estimatedReturnAmountDeductedByFees = props.fromAmount -( v.destinationTxFee + v.bridgeFee) * Math.pow(10, -8) 
-    // const { estimatedReturnAmountDeductedByFees, totalFeeWithoutGas } =
-    // Wallet.returnEstimatedReturnAmountDeductedByFees(v);
+    // const totalFeeWithoutGas = -( v.destinationTxFee + v.bridgeFee) * Math.pow(10, -8) 
+    // const estimatedReturnAmountDeductedByFees = props.fromAmount -( v.destinationTxFee + v.bridgeFee) * Math.pow(10, -8) 
+    const { estimatedReturnAmountDeductedByFees, totalFeeWithoutGas } =
+      returnEstimatedReturnAmountDeductedByFees(v);
 
     route.push({
       type: 'token-network',
-      token: props.from,
+      token: props.fromToken,
       amount: props.fromAmount,
       network: props.fromChain,
     });
@@ -47,7 +73,7 @@ export default function AvailableRoutes(props) {
       type: 'bridge',
       data: {
         name: v.route[0].bridge,
-        fee: totalFeeWithoutGas,
+        fee: 0.05,
       },
     });
 
@@ -64,13 +90,13 @@ export default function AvailableRoutes(props) {
       {
         type: 'token-network',
         amount: estimatedReturnAmountDeductedByFees,
-        token: props.to,
+        token: props.toToken.symbol,
         network: props.toChain,
       },
       {
         type: 'additional',
         fee: totalFeeWithoutGas.toFixed(6),
-        duration: v?.duration ? v?.duration : 'high',
+        duration: v.duration ? v.duration : 'high',
       },
     ]);
 
@@ -83,29 +109,18 @@ export default function AvailableRoutes(props) {
 
   return (
     <div
-      className='available-routes-wrapper control'
-      aria-label="Available routes for the swap"
     >
       <div
-        className='loader-wrapper is-active'
-      >
-        <div className="loader is-loading" />
-      </div>
-      <div
-        className='unavailable-warning-wrapper'
       >
         <div>
-          <div>
-            <ion-icon name="alert-circle-outline" />
-          </div>
-          <StyledHeader>SWING routes availabe:</StyledHeader>
+          <StyledHeader>SWING routes available:</StyledHeader>
         </div>
       </div>
       <StyledFlex>
         {routes
-          ?.filter((item) => item.bridgeType === 'celer' || item.bridgeType === 'nxtp' || item.bridgeType === 'anyswap')
+          // ?.filter((item) => item.bridgeType === 'celer' || item.bridgeType === 'nxtp' || item.bridgeType === 'anyswap')
           .map((item, i) => (
-            <RouteItemWrapper handleChange={props.handleChange} key={i} data={item} index={i} />
+            <RouteItemWrapper handleChange={props.handleChange} key={i} data={item} index={i} routeColor={props.routeColor(i)} />
           ))}
       </StyledFlex>
     </div>

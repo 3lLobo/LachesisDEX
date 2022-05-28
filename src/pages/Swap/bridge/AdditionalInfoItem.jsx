@@ -2,44 +2,43 @@ import React from 'react';
 import "./bridge.scss"
 import styled from 'styled-components/macro'
 
-const StyledHeader = styled.div`
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    /* transition: left $bridge-widget-anim-timing ease-in-out, */
-    /* opacity: 111ms ease-in-out, */
-    /* transform $bridge-widget-anim-timing ease-in-out; */
-    /* min-height: 330px; */
-    /* background: blueviolet; */
-    position: relative;
-    z-index: 10;
-    /* top: 0; */
-    /* width: 100%; */
-    opacity: 1;
-`
+
 const StyledText = styled.div`
     display: flex;
-    flex-direction: column;
-  font-size: 12px;
+    flex-direction: row;
+  font-size: 11px;
   margin: 4px;
-      display: flex;
     justify-content: space-between;
+`
+const StyledTitle = styled.div`
+  font-weight: bold;
+  margin-right: 4px;
+`
+
+const StyledWidget = styled.span`
+  display: flex;
+  /* padding: 7px 4px; */
+  align-items: right;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 11px;
+  overflow: hidden;
+  position: relative;
+  border-radius: 16px;
 `
 
 const AdditionalInfoItem = ({ info }) => {
   return (
-    <div className="bridge-widget">
-      <StyledHeader className="additional-info">
-        <StyledText className="fee-wrapper">
-          <span className="title">Fees</span>
-          <span className="value">{info.bridgeFee}</span>
-        </StyledText>
-        <StyledText className="duration-wrapper">
-          <span className="title">Duration</span>
-          <span className="value">{info.duration}</span>
-        </StyledText>
-      </StyledHeader>
-    </div>
+    <StyledWidget>
+      <StyledText>
+        <StyledTitle>Fees:</StyledTitle>
+        <span className="value">{info.fee}</span>
+      </StyledText>
+      <StyledText>
+        <StyledTitle>Duration:</StyledTitle>
+        <span>{info.duration}</span>
+      </StyledText>
+    </StyledWidget>
   );
 };
 

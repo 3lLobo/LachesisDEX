@@ -1,6 +1,7 @@
 
 export default {
-    _baseUrl: 'https://api.swing.xyz',
+    // _baseUrl: 'https://api.swing.xyz',
+    _baseUrl: 'https://swap.dev.swing.xyz',
 
     // getConfig: async function () {
     //     let result = null;

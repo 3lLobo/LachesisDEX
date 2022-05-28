@@ -9,7 +9,6 @@ import UnsupportedCurrencyFooter from 'components/swap/UnsupportedCurrencyFooter
 import { MouseoverTooltip } from 'components/Tooltip'
 import useActiveWeb3React from 'hooks/useActiveWeb3React'
 import { useSwapCallback } from 'hooks/useSwapCallback'
-import { useSwingSwapCallback } from 'hooks/useSwingSwapCallback'
 import useTransactionDeadline from 'hooks/useTransactionDeadline'
 import JSBI from 'jsbi'
 import { useCallback, useContext, useEffect, useMemo, useState } from 'react'
@@ -64,6 +63,14 @@ import ReceiverNetworkSelector from './ReceiverNetworkSelector'
 import { TransactionSwap } from 'state/routing/types'
 import swingApi from '../../lib/swingApi'
 import tryParseCurrencyAmount from '../../lib/utils/tryParseCurrencyAmount'
+import { useSwingGetQuoteQuery } from 'state/routing/sliceSwingJs'
+import { skipToken } from '@reduxjs/toolkit/query/react'
+import { CHAIN_IDS_TO_NAMES, SupportedChainId } from 'constants/chains'
+import { ethers } from 'ethers'
+import AvailableRoutes from './bridge/AvailableRoutes'
+import RoutesWrapper from './bridge/RoutesWrapper'
+import { extractTokenInfo, signSwingTx } from './swingUtils'
+import { useWeb3React } from '@web3-react/core'
 
 const AlertWrapper = styled.div`
   max-width: 460px;
@@ -89,7 +96,7 @@ const NetworkElement = styled.div`
 `
 
 export default function Swap({ history }: RouteComponentProps) {
-  const { account, chainId } = useActiveWeb3React()
+  const { account, chainId, library } = useActiveWeb3React()
   const loadedUrlParams = useDefaultsFromURLSearch()
 
   // token warning stuff
@@ -372,35 +379,74 @@ export default function Swap({ history }: RouteComponentProps) {
   ])
 
   // TODO: Fix SWING part.
+  const [swingArgs, setSwingArgs] = useState<any>(skipToken)
 
-  // This causes too many rerenders:
-  // const swingRoutes = useSwingSwapCallback(recipient)
-
-  const [swingRoutes, setSwingRoutes] = useState<any>()
   useEffect(() => {
-    if (chainId !== receiverChainId && loadedInputCurrency !== undefined && typedValue) {
-      const res = swingApi.getQuote(
-        // recipient,
-        chainId,
-        loadedInputCurrency?.symbol,
-        loadedInputCurrency?.symbol,
-        typedValue
-      )
-      setSwingRoutes(res)
+    function mainnet2ethereum(chain: string) {
+      return chain === 'mainnet' ? 'ethereum' : chain
     }
-  }, [chainId, receiverChainId, loadedInputCurrency, loadedOutputCurrency, typedValue])
+    if (account !== undefined && chainId !== receiverChainId && currencies[Field.INPUT] !== undefined && typedValue) {
+      console.log('🚀 ~ file: index.tsx ~ line 414 ~ useEffect ~ loadedInputCurrency', currencies[Field.INPUT])
+      // console.log('🚀 ~ file: index.tsx ~ line 414 ~ useEffect ~ chainId', chainId)
+      const { fromTokenAddress, tokenSymbol, tokenDecimals } = extractTokenInfo(currencies[Field.INPUT])
+      const newArgs = {
+        fromChain: mainnet2ethereum(CHAIN_IDS_TO_NAMES[chainId as SupportedChainId]),
+        fromChainId: chainId,
+        fromTokenAddress,
+        fromUserAddress: account,
+        toChain: mainnet2ethereum(CHAIN_IDS_TO_NAMES[receiverChainId as SupportedChainId]),
+        toChainId: receiverChainId,
+        tokenAmount: ethers.utils.parseUnits(typedValue, tokenDecimals).toString(), // to Wei
+        tokenSymbol,
+        // fromChain: 'ethereum',
+        // fromChainId: '1',
+        // fromTokenAddress: '0x0000000000000000000000000000000000000000',
+        // fromUserAddress: '0x3ECC53F7Ba45508483379bd76989A3003E6cbf09',
+        // toChain: 'polygon',
+        // toChainId: '137',
+        // tokenAmount: 11,
+        // tokenSymbol: 'ETH',
+      }
+      if (newArgs !== swingArgs) {
+        setSwingArgs(newArgs)
+      } else {
+        setSwingArgs(skipToken)
+      }
+    }
+  }, [chainId, receiverChainId, currencies[Field.INPUT], typedValue])
 
+  const {
+    isLoading,
+    isFetching,
+    isError,
+    currentData: swingQuote,
+    error,
+  } = useSwingGetQuoteQuery(swingArgs, {
+    pollingInterval: 0,
+    refetchOnFocus: true,
+  })
+
+  const [swingTx, setSwingTx] = useState<any>()
+  const [swingSignatureData, setSwingSignatureData] = useState<any>()
   function handleSwingSwap() {
-    if (swingRoutes !== undefined) {
-      const txHash = swingApi.getSwap(
-        account,
-        swingRoutes,
-        chainId,
-        loadedInputCurrency?.symbol,
-        loadedInputCurrency?.symbol,
-        typedValue
-      )
-      console.log('🚀 ~ file: index.tsx ~ line 407 ~ handleSwingSwap ~ txHash', txHash)
+    async function signSwingSwap() {
+      if (swingTx !== undefined) {
+        console.log('🚀 ~ file: index.tsx ~ line 443 ~ signSwingSwap ~ swingTx', swingTx)
+        signSwingTx(swingTx, library, setSwingSignatureData)
+        // try {
+        //   const txHash = await window.ethereum.request({
+        //     method: 'eth_sendTransaction',
+        //     params: [{ swingTxData, to: toApprove, from: fromApprove }],
+        //   });
+        //   return txHash;
+        // } catch (e) {
+        //   console.log('error', e);
+        // }
+      }
+    }
+    if (swingTx !== undefined) {
+      console.log('🚀 ~ file: index.tsx ~ line 438 ~ handleSwingSwap ~ swingTx', swingTx)
+      signSwingSwap()
     }
   }
 
@@ -530,22 +576,26 @@ export default function Swap({ history }: RouteComponentProps) {
               <NetworkElement>
                 <ReceiverNetworkSelector chainIdChanged={chainIdChanged} />
               </NetworkElement>
-              <CurrencyInputPanel
-                value={formattedAmounts[Field.OUTPUT]}
-                onUserInput={handleTypeOutput}
-                label={independentField === Field.INPUT && !showWrap ? <Trans>To (at least)</Trans> : <Trans>To</Trans>}
-                showMaxButton={false}
-                hideBalance={false}
-                fiatValue={fiatValueOutput ?? undefined}
-                priceImpact={priceImpact}
-                currency={currencies[Field.OUTPUT]}
-                onCurrencySelect={handleOutputSelect}
-                otherCurrency={currencies[Field.INPUT]}
-                showCommonBases={true}
-                id="swap-currency-output"
-                loading={independentField === Field.INPUT && routeIsSyncing}
-                chainId={receiverChainId}
-              />
+              {chainId === receiverChainId && (
+                <CurrencyInputPanel
+                  value={formattedAmounts[Field.OUTPUT]}
+                  onUserInput={handleTypeOutput}
+                  label={
+                    independentField === Field.INPUT && !showWrap ? <Trans>To (at least)</Trans> : <Trans>To</Trans>
+                  }
+                  showMaxButton={false}
+                  hideBalance={false}
+                  fiatValue={fiatValueOutput ?? undefined}
+                  priceImpact={priceImpact}
+                  currency={currencies[Field.OUTPUT]}
+                  onCurrencySelect={handleOutputSelect}
+                  otherCurrency={currencies[Field.INPUT]}
+                  showCommonBases={true}
+                  id="swap-currency-output"
+                  loading={independentField === Field.INPUT && routeIsSyncing}
+                  chainId={receiverChainId}
+                />
+              )}
             </div>
 
             {recipient !== null && !showWrap ? (
@@ -643,8 +693,8 @@ export default function Swap({ history }: RouteComponentProps) {
                     </ButtonConfirmed>
                     <ButtonError
                       onClick={() => {
-                        if (chainId !== receiverChainId) {
-                          handleSwingSwap()
+                        if (isExpertMode) {
+                          handleSwap()
                         } else {
                           setSwapState({
                             tradeToConfirm: trade,
@@ -669,19 +719,7 @@ export default function Swap({ history }: RouteComponentProps) {
               ) : chainId !== receiverChainId ? (
                 <div>
                   <ButtonError
-                    onClick={() => {
-                      if (chainId !== receiverChainId) {
-                        handleSwingSwap()
-                      } else {
-                        setSwapState({
-                          tradeToConfirm: trade,
-                          attemptingTxn: false,
-                          swapErrorMessage: undefined,
-                          showConfirm: true,
-                          txHash: undefined,
-                        })
-                      }
-                    }}
+                    onClick={() => handleSwingSwap()}
                     width="100%"
                     id="swap-button"
                     disabled={false}
@@ -691,16 +729,15 @@ export default function Swap({ history }: RouteComponentProps) {
                       <Trans>Swing Swap</Trans>
                     </Text>
                   </ButtonError>
-                  <MockAvailableRoutes
-                    fromAmount={typedValue}
-                    toAddress={account}
-                    fromAddress={account}
-                    toChain={chainId}
-                    fromChain={receiverChainId}
+                  <RoutesWrapper
+                    setSwingTx={setSwingTx}
+                    typedValue={typedValue}
+                    swingQuote={swingQuote}
+                    swingQuoteArgs={swingArgs}
+                    isLoading={isLoading}
                   />
                 </div>
               ) : (
-                // <AvailableRoutes isLoading={isLoading} isError={isError} data={data} currentData={currentData} error={error} />
                 <ButtonError
                   onClick={() => {
                     if (chainId !== receiverChainId) {
