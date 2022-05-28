@@ -40,7 +40,7 @@ const StyledSpinnerWrapper = styled.div`
     padding-left: 170px
 `
 
-export default function RoutesWrapper({ swingQuote, setSwingTx, swingQuoteArgs, typedValue, isLoading }) {
+export default function RoutesWrapper({ swingQuote, setSwingTx, swingQuoteArgs, typedValue, isLoading, isFetching }) {
 
     const theme = useTheme()
     const [swingArgs, setSwingArgs] = useState(skipToken)
@@ -66,11 +66,6 @@ export default function RoutesWrapper({ swingQuote, setSwingTx, swingQuoteArgs, 
         return color
     }
 
-
-    /* useEffect(() => {
-        console.log('🚀 ~ file: RoutesWrapper.js ~ line 14 ~ RoutesWrapper ~ mutationState', swingTx)
-    }, [swingTx]) */
-
     useEffect(() => {
         if (!isLoading && swingTx !== undefined) {
             setSwingTx(swingTx)
@@ -92,8 +87,8 @@ export default function RoutesWrapper({ swingQuote, setSwingTx, swingQuoteArgs, 
     }
     return (
         <div>
-            {isLoading
-                ? <StyledSpinnerWrapper><Spinner /></StyledSpinnerWrapper>
+            {isLoading | (isFetching && swingQuote === undefined)
+                ? <StyledSpinnerWrapper><Spinner theme={theme} /></StyledSpinnerWrapper>
                 :
                 <div>
                     {swingQuote !== undefined &&

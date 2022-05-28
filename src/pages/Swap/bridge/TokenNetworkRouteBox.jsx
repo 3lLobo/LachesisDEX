@@ -15,14 +15,14 @@ const StyledTokenSymbol = styled.div`
       font-weight: bold;
       line-height: 14px;
       font-size: 11px;
-      color: white;
+      /* color: white; */
       margin-left: 11px;
 
 `
 const StyledTokenAmount = styled.div`
       line-height: 14px;
       font-size: 11px;
-      color: white;
+      /* color: white; */
       margin-left: 11px;
 
 `

@@ -735,6 +735,7 @@ export default function Swap({ history }: RouteComponentProps) {
                     swingQuote={swingQuote}
                     swingQuoteArgs={swingArgs}
                     isLoading={isLoading}
+                    isFetching={isFetching}
                   />
                 </div>
               ) : (

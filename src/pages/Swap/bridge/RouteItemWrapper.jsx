@@ -3,10 +3,6 @@ import RouteItemView from './RouteItemView';
 // import RouteItemMobileView from './RouteItemMobileView';
 import styled from 'styled-components/macro'
 
-
-
-export default function RouteItemWrapper(props) {
-  const bgColor = props.routeColor
   const StyledItemWrapper = styled.div`
     /* height: 75px; */
     display: flex;
@@ -14,16 +10,20 @@ export default function RouteItemWrapper(props) {
     border-radius: 21px;
     /* background-color: transparent; */
     align-items: center;
-    background-color: ${bgColor};
+    background-color: ${({bgColor}) => bgColor};
     padding: 6px;
     &:not(:last-child) {
       margin-bottom: 3px;
     };
   `
+
+
+export default function RouteItemWrapper(props) {
+  const bgColor = props.routeColor
   const routeItem = props.data?.route;
 
   return (
-    <StyledItemWrapper >
+    <StyledItemWrapper bgColor={bgColor}>
       <input
         type="radio"
         id={'control_' + props.index}
