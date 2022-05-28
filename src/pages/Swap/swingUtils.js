@@ -27,7 +27,10 @@ export function signSwingTx(swingTx, library, setSwingSignatureData) {
         .getSigner()
         .sendTransaction(swingTx.tx)
         .then((response) => {
-            console.log("🚀 ~ file: swingUtils.js ~ line 30 ~ .then ~ response", response)            
+            console.log("🚀 ~ file: swingUtils.js ~ line 30 ~ .then ~ response", response)
             setSwingSignatureData(response)
+        })
+        .catch((error) => {
+            console.log(error)
         })
 }

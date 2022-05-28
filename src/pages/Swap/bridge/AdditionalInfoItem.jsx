@@ -1,5 +1,4 @@
 import React from 'react';
-import "./bridge.scss"
 import styled from 'styled-components/macro'
 
 

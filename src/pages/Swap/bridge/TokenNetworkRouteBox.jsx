@@ -1,6 +1,5 @@
 import React from 'react';
 // import TokenIconImg from '../TokenIconImg';
-import "./bridge.scss"
 import styled from 'styled-components/macro'
 import { useDerivedSwapInfo } from 'state/swap/hooks';
 // import TokenIconImg from './TokenIconImg'
